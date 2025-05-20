@@ -11,7 +11,8 @@ export default {
   theme: {
   	extend: {
       fontFamily: {
-        sans: ["var(--font-lora)", ...defaultFontFamily.sans],
+        sans: ["var(--font-lora)", ...defaultFontFamily.sans], // Lora as default sans
+        lora: ["var(--font-lora)"], // Explicitly define lora
         mono: ["var(--font-geist-mono)", ...defaultFontFamily.mono],
       },
   		colors: {
@@ -69,7 +70,9 @@ export default {
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
-  			sm: 'calc(var(--radius) - 4px)'
+  			sm: 'calc(var(--radius) - 4px)',
+        xl: 'calc(var(--radius) + 4px)', // Added for more rounded elements
+        '2xl': 'calc(var(--radius) + 8px)',
   		},
   		keyframes: {
   			'accordion-down': {
@@ -87,11 +90,20 @@ export default {
   				to: {
   					height: '0'
   				}
-  			}
+  			},
+        'pulse-slow': { // Custom slow pulse for subtle glow
+          '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+          '50%': { opacity: '0.7', transform: 'scale(1.05)' },
+        },
+        'spin-slow': { // Custom slow spin
+          'to': { transform: 'rotate(360deg)' },
+        }
   		},
   		animation: {
-  			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out'
+  			'accordion-down': 'accordion-down 0.3s ease-out', // Slightly slower accordion
+  			'accordion-up': 'accordion-up 0.3s ease-out',
+        'pulse-glow': 'pulse-slow 3s infinite ease-in-out', // Using custom pulse
+        'spin-slow': 'spin-slow 10s linear infinite', // Custom slow spin
   		}
   	}
   },
