@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useTransition, useEffect } from 'react';
@@ -5,23 +6,13 @@ import { useJournal } from '@/contexts/journal-context';
 import type { Prediction } from '@/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { summarizePredictions, SummarizePredictionsInput, SummarizePredictionsOutput } from '@/ai/flows/summarize-predictions';
+import type { SummarizePredictionsInput } from '@/ai/flows/summarize-predictions';
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ScrollText, Lightbulb, Terminal } from "lucide-react";
+import { ScrollText, Lightbulb, Terminal, BrainCircuit } from "lucide-react";
 import { LoadingSpinner } from '@/components/common/loading-spinner';
 import { format } from 'date-fns';
-
-async function handleSummarizePredictionsAction(input: SummarizePredictionsInput): Promise<SummarizePredictionsOutput | { error: string }> {
-  "use server";
-  try {
-    const result = await summarizePredictions(input);
-    return result;
-  } catch (e: any) {
-    console.error("Error summarizing predictions:", e);
-    return { error: e.message || "Failed to summarize predictions." };
-  }
-}
+import { handleSummarizePredictionsAction } from './actions';
 
 export default function JournalPageClient() {
   const { predictions, getPredictions, clearJournal } = useJournal();
@@ -38,6 +29,11 @@ export default function JournalPageClient() {
   const handleSummarize = () => {
     if (journalEntries.length === 0) {
       setError("Your journal is empty. Add some predictions first!");
+      toast({
+        variant: "default",
+        title: "Journal Empty",
+        description: "Add some predictions before summarizing.",
+      });
       return;
     }
     setError(null);
@@ -58,6 +54,10 @@ export default function JournalPageClient() {
         });
       } else {
         setSummary(result.summary);
+        toast({
+          title: "Path Summarized",
+          description: "AstraKairos has distilled the essence of your past divinations.",
+        });
       }
     });
   };
@@ -68,7 +68,7 @@ export default function JournalPageClient() {
     setError(null);
     toast({
       title: "Journal Cleared",
-      description: "All your past predictions have been removed.",
+      description: "All your past predictions have been removed from AstraKairos's sight.",
     });
   };
 
@@ -78,27 +78,38 @@ export default function JournalPageClient() {
       <header className="text-center">
         <h1 className="text-4xl font-bold tracking-tight text-primary">Your Future Journal</h1>
         <p className="mt-2 text-lg text-muted-foreground">
-          Reflect on past divinations and discover overarching themes in your journey.
+          Reflect on past divinations and allow AstraKairos to illuminate overarching themes in your journey.
         </p>
       </header>
 
       <Card className="shadow-xl bg-card/50 backdrop-blur-sm">
         <CardHeader>
-          <CardTitle className="text-2xl flex items-center gap-2"><Lightbulb className="text-accent"/>AI-Powered Insights</CardTitle>
-          <CardDescription>Let Divi-Bot summarize the recurring patterns and wisdom from your past predictions.</CardDescription>
+          <CardTitle className="text-2xl flex items-center gap-2"><BrainCircuit className="text-accent h-6 w-6"/>AstraKairos's Reflections</CardTitle>
+          <CardDescription>Let AstraKairos summarize the recurring patterns and wisdom from your past predictions, drawing from its long-term memory analysis.</CardDescription>
         </CardHeader>
         <CardContent>
-          {summary && (
+          {isSummarizing && <div className="flex justify-center py-4"><LoadingSpinner /></div>}
+          {summary && !isSummarizing && (
             <div className="p-4 border border-dashed border-accent rounded-md bg-accent/10">
               <p className="text-lg leading-relaxed whitespace-pre-wrap">{summary}</p>
             </div>
           )}
-          {error && (
+          {error && !isSummarizing && (
             <Alert variant="destructive" className="shadow-md mt-4">
               <Terminal className="h-4 w-4" />
               <AlertTitle>Summarization Error</AlertTitle>
               <AlertDescription>{error}</AlertDescription>
             </Alert>
+          )}
+          {!summary && !isSummarizing && journalEntries.length > 0 && (
+            <p className="text-center text-muted-foreground py-4">
+              Invoke AstraKairos to summarize your path.
+            </p>
+          )}
+           {!summary && !isSummarizing && journalEntries.length === 0 && (
+            <p className="text-center text-muted-foreground py-4">
+              Your journal is empty. Seek a divination to begin.
+            </p>
           )}
         </CardContent>
         <CardFooter className="flex flex-col sm:flex-row justify-between gap-2">
@@ -107,7 +118,7 @@ export default function JournalPageClient() {
             disabled={isSummarizing || journalEntries.length === 0} 
             className="w-full sm:w-auto bg-accent text-accent-foreground hover:bg-accent/90"
           >
-            {isSummarizing ? <LoadingSpinner className="mr-2" /> : null}
+            {isSummarizing ? <LoadingSpinner className="mr-2" /> : <Lightbulb className="mr-2 h-4 w-4" />}
             Summarize My Path
           </Button>
           <Button 
@@ -127,7 +138,7 @@ export default function JournalPageClient() {
           <p className="text-center text-muted-foreground text-lg py-8">
             Your journal is currently empty.
             <br />
-            Seek a divination to begin chronicling your future.
+            Seek a divination to begin chronicling your future with AstraKairos.
           </p>
         ) : (
           <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
@@ -141,8 +152,8 @@ export default function JournalPageClient() {
                   <p className="pt-1">{entry.query}</p>
                 </CardHeader>
                 <CardContent>
-                  <h3 className="font-semibold mb-1 text-primary">Divi-Bot's Insight:</h3>
-                  <p className="text-muted-foreground leading-relaxed">{entry.prediction}</p>
+                  <h3 className="font-semibold mb-1 text-primary">AstraKairos's Journaled Insight:</h3>
+                  <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">{entry.prediction}</p>
                 </CardContent>
               </Card>
             ))}
