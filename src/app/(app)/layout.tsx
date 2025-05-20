@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpenText, Wand2, Palette, BrainCog, PanelLeft, Library, Eye } from 'lucide-react'; // Added Eye icon
+import { BookOpenText, Wand2, Palette, BrainCog, PanelLeft, Library, Eye, Settings } from 'lucide-react'; // Added Settings icon
 import { 
   SidebarProvider, 
   Sidebar, 
@@ -26,7 +26,7 @@ const navItems = [
   { href: '/sigils', label: 'Sigil Generator', icon: Palette },
   { href: '/metaphysical-expert', label: 'Meta-Physical Expert', icon: BrainCog },
   { href: '/mystic-mentor', label: 'Mystic Mentor', icon: Library },
-  { href: '/illuminator', label: 'Illuminator', icon: Eye }, // New nav item
+  { href: '/illuminator', label: 'Illuminator', icon: Eye },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -63,13 +63,20 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </SidebarContent>
       </Sidebar>
       <SidebarInset>
-        <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 md:px-6">
-          <div className="md:hidden">
-             <SidebarTrigger />
+        <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background/80 backdrop-blur-sm px-4 md:px-6">
+          <div className="flex items-center gap-2"> {/* Group for left items */}
+            <div className="md:hidden">
+                <SidebarTrigger />
+            </div>
+            {/* This div can be used for a dynamic page title or breadcrumbs in the future */}
+            <div className="flex-1"></div>
           </div>
-          <div className="flex-1">
-            {/* Optional: Breadcrumbs or page title here */}
-          </div>
+          
+          <Link href="/settings" passHref legacyBehavior>
+            <Button variant="ghost" size="icon" aria-label="Settings">
+              <Settings className="h-5 w-5" />
+            </Button>
+          </Link>
         </header>
         <main className="flex-1 p-4 md:p-6 lg:p-8">
           {children}
@@ -78,4 +85,3 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     </SidebarProvider>
   );
 }
-
