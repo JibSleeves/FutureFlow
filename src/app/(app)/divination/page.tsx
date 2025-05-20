@@ -14,10 +14,10 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Terminal, Sparkles, Wand2, TestTube2, Layers3, Brain, BookHeart, Scroll } from "lucide-react";
 import { LoadingSpinner } from '@/components/common/loading-spinner';
 import { Separator } from '@/components/ui/separator';
-import { handleSummarizePredictionsAction } from '../journal/actions';
+import { handleSummarizePredictionsAction } from '../journal/actions'; // Adjusted path
 import type { SummarizePredictionsInput } from '@/ai/flows/summarize-predictions';
 import { format } from 'date-fns';
-import { cn } from '@/lib/utils'; // Ensure cn is imported
+import { cn } from '@/lib/utils'; 
 
 const symbolicSeeds = [
   "a raven feather on snow",
@@ -79,22 +79,28 @@ export default function DivinationPageClient() {
       if (pastPredictions.length > 0) {
         const predictionsText = pastPredictions
           .map(p => `On ${format(new Date(p.date), 'PPP')}, Query: "${p.query}", AstraKairos Said: "${p.prediction}"`)
-          .slice(0, 5) 
+          .slice(0, 10) // Consider more entries for better summary
           .join('\n\n---\n\n');
         
-        const summaryResult = await handleSummarizePredictionsAction({ predictions: `Recent journal entries:\n${predictionsText}` });
-        if (!('error' in summaryResult) && summaryResult.summary) {
-          journalHistorySummary = summaryResult.summary;
+        const summaryInput: SummarizePredictionsInput = { predictions: `Recent journal entries:\n${predictionsText}` };
+        const summaryResult = await handleSummarizePredictionsAction(summaryInput);
+        
+        if (!('error' in summaryResult) && summaryResult.archetypalSummary) {
+          journalHistorySummary = summaryResult.archetypalSummary;
+        } else if ('error' in summaryResult) {
+          console.warn("Failed to get archetypal summary:", summaryResult.error);
+          // Proceed without summary if it fails, or handle error more gracefully
         }
       }
 
       const randomSeed = symbolicSeeds[Math.floor(Math.random() * symbolicSeeds.length)];
 
-      const result = await handleGenerateInsightsAction({ 
+      const insightsInput: GenerateInsightsInput = { 
         query, 
-        journalHistory: journalHistorySummary,
+        journalHistory: journalHistorySummary || undefined, // Ensure undefined if empty
         symbolicSeed: randomSeed 
-      });
+      };
+      const result = await handleGenerateInsightsAction(insightsInput);
 
       if ('error' in result) {
         setError(result.error);

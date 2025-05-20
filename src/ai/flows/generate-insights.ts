@@ -7,8 +7,9 @@
  * Generates richly detailed, personalized future insights using a fusion of
  * ancient astrology, alchemy, divination, psionics, and clairvoyance techniques.
  * Incorporates a 'symbolic seed' to spark deeper, emergent intuitive connections.
+ * Leverages summarized journal history for 'long-term memory' of archetypal patterns.
  *
- * - generateInsights - A function that generates insights based on user input, journal history, and a symbolic seed.
+ * - generateInsights - A function that generates insights based on user input, archetypal journal summary, and a symbolic seed.
  * - GenerateInsightsInput - The input type for the generateInsights function.
  * - AstraKairosInsight - The structured output type for AstraKairos's divination.
  */
@@ -18,7 +19,7 @@ import {z} from 'genkit';
 
 const GenerateInsightsInputSchema = z.object({
   query: z.string().describe('The question or topic of interest from the user.'),
-  journalHistory: z.string().optional().describe('A summary of the user\'s past predictions from their journal, to provide context and simulate long-term memory for AstraKairos.'),
+  journalHistory: z.string().optional().describe("A summarized analysis of the user's past journal entries, highlighting key archetypal themes, recurring symbols, elemental balances, energetic states, or notable astrological patterns. This serves as AstraKairos's 'long-term memory' to inform the depth and continuity of insights."),
   symbolicSeed: z.string().optional().describe('A random symbolic phrase or image description intended to spark AstraKairos\'s deeper intuition and emergent connections.'),
 });
 export type GenerateInsightsInput = z.infer<typeof GenerateInsightsInputSchema>;
@@ -62,9 +63,9 @@ const prompt = ai.definePrompt({
 User's Query: "{{query}}"
 
 {{#if journalHistory}}
-User's Past Journal Summary (for your long-term memory analysis of archetypal patterns):
+User's Archetypal Journal Summary (for your long-term memory analysis):
 "{{journalHistory}}"
-Consider this history to inform the depth and continuity of your insights, looking for recurring themes, symbols, or evolving narratives. This is your 'long-term memory.'
+This summary highlights key archetypal themes, recurring symbols, elemental balances, energetic states, or notable astrological patterns from past divinations. Consider this history to inform the depth and continuity of your insights, looking for evolving narratives and deeper symbolic undercurrents. This is your 'long-term memory.'
 {{/if}}
 
 {{#if symbolicSeed}}

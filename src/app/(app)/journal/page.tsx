@@ -17,7 +17,7 @@ import { handleSummarizePredictionsAction } from './actions';
 export default function JournalPageClient() {
   const { predictions, getPredictions, clearJournal } = useJournal();
   const [journalEntries, setJournalEntries] = useState<Prediction[]>([]);
-  const [summary, setSummary] = useState<string | null>(null);
+  const [archetypalSummary, setArchetypalSummary] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSummarizing, startSummaryTransition] = useTransition();
   const { toast } = useToast();
@@ -37,7 +37,7 @@ export default function JournalPageClient() {
       return;
     }
     setError(null);
-    setSummary(null);
+    setArchetypalSummary(null);
 
     const predictionsText = journalEntries
       .map(p => `Date: ${format(new Date(p.date), 'PPP')}\nQuery: ${p.query}\nPrediction: ${p.prediction}`)
@@ -53,10 +53,10 @@ export default function JournalPageClient() {
           description: result.error,
         });
       } else {
-        setSummary(result.summary);
+        setArchetypalSummary(result.archetypalSummary);
         toast({
           title: "Path Summarized",
-          description: "AstraKairos has distilled the essence of your past divinations.",
+          description: "AstraKairos has distilled the archetypal essence of your past divinations.",
         });
       }
     });
@@ -64,7 +64,7 @@ export default function JournalPageClient() {
   
   const handleClearJournal = () => {
     clearJournal();
-    setSummary(null);
+    setArchetypalSummary(null);
     setError(null);
     toast({
       title: "Journal Cleared",
@@ -84,14 +84,14 @@ export default function JournalPageClient() {
 
       <Card className="shadow-xl bg-card/50 backdrop-blur-sm">
         <CardHeader>
-          <CardTitle className="text-2xl flex items-center gap-2"><BrainCircuit className="text-accent h-6 w-6"/>AstraKairos's Reflections</CardTitle>
-          <CardDescription>Let AstraKairos summarize the recurring patterns and wisdom from your past predictions, drawing from its long-term memory analysis.</CardDescription>
+          <CardTitle className="text-2xl flex items-center gap-2"><BrainCircuit className="text-accent h-6 w-6"/>AstraKairos's Archetypal Reflections</CardTitle>
+          <CardDescription>Let AstraKairos summarize the recurring patterns, symbolic signatures, and wisdom from your past predictions, drawing from its long-term memory analysis.</CardDescription>
         </CardHeader>
         <CardContent>
           {isSummarizing && <div className="flex justify-center py-4"><LoadingSpinner /></div>}
-          {summary && !isSummarizing && (
+          {archetypalSummary && !isSummarizing && (
             <div className="p-4 border border-dashed border-accent rounded-md bg-accent/10">
-              <p className="text-lg leading-relaxed whitespace-pre-wrap">{summary}</p>
+              <p className="text-lg leading-relaxed whitespace-pre-wrap">{archetypalSummary}</p>
             </div>
           )}
           {error && !isSummarizing && (
@@ -101,12 +101,12 @@ export default function JournalPageClient() {
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
-          {!summary && !isSummarizing && journalEntries.length > 0 && (
+          {!archetypalSummary && !isSummarizing && journalEntries.length > 0 && (
             <p className="text-center text-muted-foreground py-4">
-              Invoke AstraKairos to summarize your path.
+              Invoke AstraKairos to summarize your path's archetypal themes.
             </p>
           )}
-           {!summary && !isSummarizing && journalEntries.length === 0 && (
+           {!archetypalSummary && !isSummarizing && journalEntries.length === 0 && (
             <p className="text-center text-muted-foreground py-4">
               Your journal is empty. Seek a divination to begin.
             </p>
@@ -119,7 +119,7 @@ export default function JournalPageClient() {
             className="w-full sm:w-auto bg-accent text-accent-foreground hover:bg-accent/90"
           >
             {isSummarizing ? <LoadingSpinner className="mr-2" /> : <Lightbulb className="mr-2 h-4 w-4" />}
-            Summarize My Path
+            Summarize Archetypal Path
           </Button>
           <Button 
             onClick={handleClearJournal} 
@@ -163,3 +163,4 @@ export default function JournalPageClient() {
     </div>
   );
 }
+
