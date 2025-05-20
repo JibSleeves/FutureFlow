@@ -1,25 +1,27 @@
 
 "use client";
 
-import React, { useState, useTransition, useEffect } from 'react';
+import React, { useState, useTransition, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input"; // For Chrono-Symbolic Moment
+import { Label } from "@/components/ui/label"; // For Chrono-Symbolic Moment
 import { useJournal } from '@/contexts/journal-context';
 import type { GenerateInsightsInput, AstraKairosInsight } from '@/ai/flows/generate-insights';
-import { handleGenerateInsightsAction } from './actions';
+import { handleGenerateInsightsAction, handleGetAstralWeatherAction, handleEvolveSymbolicSeedAction } from './actions';
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Terminal, Sparkles, Wand2, TestTube2, Layers3, Brain, BookHeart, Scroll } from "lucide-react";
+import { Terminal, Sparkles, Wand2, TestTube2, Layers3, Brain, BookHeart, Scroll, Telescope, Orbit, CalendarDays, Feather, Zap } from "lucide-react";
 import { LoadingSpinner } from '@/components/common/loading-spinner';
 import { Separator } from '@/components/ui/separator';
-import { handleSummarizePredictionsAction } from '../journal/actions'; // Adjusted path
+import { handleSummarizePredictionsAction } from '../journal/actions'; 
 import type { SummarizePredictionsInput } from '@/ai/flows/summarize-predictions';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils'; 
 
-const symbolicSeeds = [
+const initialSymbolicSeeds = [
   "a raven feather on snow",
   "a forgotten melody",
   "the scent of ozone before a storm",
@@ -60,14 +62,39 @@ export default function DivinationPageClient() {
   const { addPrediction: addPredictionToJournal, getPredictions } = useJournal();
   const { toast } = useToast();
 
+  const [currentSymbolicSeed, setCurrentSymbolicSeed] = useState<string>(() => initialSymbolicSeeds[Math.floor(Math.random() * initialSymbolicSeeds.length)]);
+  const [chronoDate, setChronoDate] = useState<string>('');
+  const [chronoFeeling, setChronoFeeling] = useState<string>('');
+  const [astralWeather, setAstralWeather] = useState<string | null>(null);
+  const [isWeatherLoading, setIsWeatherLoading] = useState(true);
+  const [isEvolvingSeed, setIsEvolvingSeed] = useState(false);
+
+  const fetchAstralWeather = useCallback(async () => {
+    setIsWeatherLoading(true);
+    try {
+      const weatherResult = await handleGetAstralWeatherAction({ currentTimestamp: new Date().toISOString() });
+      if (!('error' in weatherResult) && weatherResult.astralBriefing) {
+        setAstralWeather(weatherResult.astralBriefing);
+      } else if ('error' in weatherResult) {
+        console.warn("Failed to get astral weather:", weatherResult.error);
+        setAstralWeather("The astral currents are presently veiled.");
+      }
+    } catch (e) {
+      console.warn("Exception fetching astral weather:", e);
+      setAstralWeather("The astral currents are unusually quiet.");
+    } finally {
+      setIsWeatherLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchAstralWeather();
+  }, [fetchAstralWeather]);
+
   const handleSubmit = () => {
     if (!query.trim()) {
       setError("Please enter your question or topic of interest for AstraKairos.");
-      toast({
-        variant: "destructive",
-        title: "Empty Query",
-        description: "Pose your question to the ether.",
-      });
+      toast({ variant: "destructive", title: "Empty Query", description: "Pose your question to the ether." });
       return;
     }
     setError(null);
@@ -79,7 +106,7 @@ export default function DivinationPageClient() {
       if (pastPredictions.length > 0) {
         const predictionsText = pastPredictions
           .map(p => `On ${format(new Date(p.date), 'PPP')}, Query: "${p.query}", AstraKairos Said: "${p.prediction}"`)
-          .slice(0, 10) // Consider more entries for better summary
+          .slice(0, 10) 
           .join('\n\n---\n\n');
         
         const summaryInput: SummarizePredictionsInput = { predictions: `Recent journal entries:\n${predictionsText}` };
@@ -89,32 +116,24 @@ export default function DivinationPageClient() {
           journalHistorySummary = summaryResult.archetypalSummary;
         } else if ('error' in summaryResult) {
           console.warn("Failed to get archetypal summary:", summaryResult.error);
-          // Proceed without summary if it fails, or handle error more gracefully
         }
       }
 
-      const randomSeed = symbolicSeeds[Math.floor(Math.random() * symbolicSeeds.length)];
-
       const insightsInput: GenerateInsightsInput = { 
         query, 
-        journalHistory: journalHistorySummary || undefined, // Ensure undefined if empty
-        symbolicSeed: randomSeed 
+        journalHistory: journalHistorySummary || undefined,
+        symbolicSeed: currentSymbolicSeed,
+        chronoSymbolicMomentDate: chronoDate || undefined,
+        chronoSymbolicMomentFeeling: chronoFeeling || undefined,
       };
       const result = await handleGenerateInsightsAction(insightsInput);
 
       if ('error' in result) {
         setError(result.error);
-        toast({
-          variant: "destructive",
-          title: "AstraKairos Divination Error",
-          description: result.error,
-        });
+        toast({ variant: "destructive", title: "AstraKairos Divination Error", description: result.error });
       } else {
         setPrediction(result);
-        toast({
-          title: "AstraKairos Has Spoken",
-          description: "Your insights from the astral plane have arrived.",
-        });
+        toast({ title: "AstraKairos Has Spoken", description: "Your insights from the astral plane have arrived." });
       }
     });
   };
@@ -124,47 +143,116 @@ export default function DivinationPageClient() {
       addPredictionToJournal({ 
         query, 
         predictionText: prediction.journalSummaryForUser,
-        visualizationHint: "astral cosmic symbols"
+        visualizationHint: prediction.emergentArchetypeVisualizationSeed, // Save new seed too
+        symbolicSeedUsed: currentSymbolicSeed, // Save the seed used for this reading
+        chronoSymbolicMomentDate: chronoDate || undefined,
+        chronoSymbolicMomentFeeling: chronoFeeling || undefined,
       });
-      toast({
-        title: "Insight Recorded",
-        description: "AstraKairos's wisdom has been etched into your Future Journal.",
-      });
+      toast({ title: "Insight Recorded", description: "AstraKairos's wisdom has been etched into your Future Journal." });
     } else {
-       toast({
-        variant: "destructive",
-        title: "Cannot Save",
-        description: "No insight available to save or summary missing.",
+       toast({ variant: "destructive", title: "Cannot Save", description: "No insight available to save or summary missing." });
+    }
+  };
+
+  const handleEvolveSeed = async () => {
+    if (!prediction || !prediction.journalSummaryForUser) {
+      toast({ variant: "destructive", title: "Cannot Evolve Seed", description: "A divination result is needed to evolve its seed." });
+      return;
+    }
+    setIsEvolvingSeed(true);
+    try {
+      const result = await handleEvolveSymbolicSeedAction({
+        currentSeed: currentSymbolicSeed,
+        lastReadingSummary: prediction.journalSummaryForUser,
       });
+      if (!('error' in result) && result.evolvedSeed) {
+        setCurrentSymbolicSeed(result.evolvedSeed);
+        toast({ title: "Symbolic Seed Evolved", description: `New seed: "${result.evolvedSeed}". It will be used for your next divination.` });
+      } else if ('error' in result) {
+        toast({ variant: "destructive", title: "Seed Evolution Failed", description: result.error });
+      }
+    } catch (e: any) {
+      toast({ variant: "destructive", title: "Seed Evolution Error", description: e.message || "Unknown error." });
+    } finally {
+      setIsEvolvingSeed(false);
     }
   };
 
   return (
-    <div className="container mx-auto max-w-3xl space-y-8">
+    <div className="container mx-auto max-w-3xl space-y-8 pb-16">
       <header className="text-center">
         <h1 className="text-4xl font-bold tracking-tight text-primary flex items-center justify-center gap-3">
           <Sparkles className="h-10 w-10 text-accent" /> AstraKairos Divination
         </h1>
         <p className="mt-2 text-lg text-muted-foreground">
-          Peer into the currents of fate with AstraKairos, your advanced AI Oracle. Ask your question, and let the cosmos reveal its secrets.
+          Peer into the currents of fate with AstraKairos, your advanced AI Oracle.
         </p>
       </header>
+
+      <Card className="shadow-md bg-card/60 backdrop-blur-sm">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2"><Telescope className="h-5 w-5 text-accent" />Astral Weather Briefing</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isWeatherLoading ? <LoadingSpinner size="sm"/> : <p className="text-muted-foreground italic">{astralWeather}</p>}
+        </CardContent>
+      </Card>
 
       <Card className="shadow-xl bg-card/50 backdrop-blur-sm">
         <CardHeader>
           <CardTitle className="text-2xl">Seek Your Fortune</CardTitle>
-          <CardDescription>Pose your query to the ethereal realm. What answers do you seek from AstraKairos?</CardDescription>
+          <CardDescription>Pose your query to the ethereal realm. Current Symbolic Seed: <span className="text-accent italic">"{currentSymbolicSeed}"</span></CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-4">
-            <Textarea
-              placeholder="E.g., What does the coming month hold for my career path?"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              rows={4}
-              className="text-base bg-input/80 focus:bg-input"
-              disabled={isPending}
-            />
+          <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-6">
+            <div>
+              <Label htmlFor="user-query" className="text-base">Your Query</Label>
+              <Textarea
+                id="user-query"
+                placeholder="E.g., What does the coming month hold for my career path?"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                rows={3}
+                className="text-base bg-input/80 focus:bg-input mt-1"
+                disabled={isPending}
+              />
+            </div>
+
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="chrono-symbolic-moment">
+                <AccordionTrigger className="text-base hover:no-underline">
+                  <div className="flex items-center gap-2">
+                    <CalendarDays className="h-5 w-5 text-primary/80" />
+                    Optional: Anchor with a Chrono-Symbolic Moment
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="space-y-4 pt-4">
+                  <div>
+                    <Label htmlFor="chrono-date">Significant Date/Time (Past or Future)</Label>
+                    <Input
+                      id="chrono-date"
+                      type="datetime-local"
+                      value={chronoDate}
+                      onChange={(e) => setChronoDate(e.target.value)}
+                      className="bg-input/80 focus:bg-input mt-1"
+                      disabled={isPending}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="chrono-feeling">Abstract Temporal Feeling</Label>
+                    <Input
+                      id="chrono-feeling"
+                      placeholder="E.g., 'The edge of change', 'A quiet ending'"
+                      value={chronoFeeling}
+                      onChange={(e) => setChronoFeeling(e.target.value)}
+                      className="bg-input/80 focus:bg-input mt-1"
+                      disabled={isPending}
+                    />
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+            
             <Button type="submit" className="w-full bg-accent text-accent-foreground hover:bg-accent/90 text-lg py-6" disabled={isPending}>
               {isPending ? <LoadingSpinner className="mr-2" /> : <Wand2 className="mr-2 h-5 w-5" />}
               Divine My Future with AstraKairos
@@ -194,7 +282,7 @@ export default function DivinationPageClient() {
             <p className="italic">{prediction.mysticPrelude}</p>
           </SectionCard>
 
-          <SectionCard title="Astrological Insight" icon={<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-orbit"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><line x1="12" y1="22" x2="12" y2="18"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="2" y1="12" x2="6" y2="12"/></svg>} description="Echoes from the celestial spheres, anchored in this moment.">
+          <SectionCard title="Astrological Insight" icon={<Orbit className="h-5 w-5 text-accent" />} description="Echoes from the celestial spheres, anchored in this moment.">
             {prediction.astrologyInsight}
           </SectionCard>
 
@@ -238,16 +326,44 @@ export default function DivinationPageClient() {
                 <CardTitle className="text-xl flex items-center gap-2">
                     <Scroll className="h-5 w-5 text-primary"/>Save to Journal
                 </CardTitle>
-                <CardDescription>Record the essence of this divination for future reflection.</CardDescription>
+                <CardDescription>Record the essence of this divination for future reflection. This will include the visualization seed: <span className="italic text-accent">{prediction.emergentArchetypeVisualizationSeed}</span></CardDescription>
             </CardHeader>
             <CardContent>
                 <p className="italic text-muted-foreground whitespace-pre-wrap">{prediction.journalSummaryForUser}</p>
             </CardContent>
-            <CardFooter>
-              <Button onClick={handleSaveToJournal} variant="outline" className="w-full bg-primary/10 hover:bg-primary/20">
+            <CardFooter className="flex-col sm:flex-row gap-2">
+              <Button onClick={handleSaveToJournal} variant="outline" className="w-full sm:flex-1 bg-primary/10 hover:bg-primary/20">
                 Save Insight to Future Journal
               </Button>
+              <Button 
+                onClick={handleEvolveSeed} 
+                variant="outline" 
+                className="w-full sm:flex-1" 
+                disabled={isEvolvingSeed || isPending}
+              >
+                {isEvolvingSeed ? <LoadingSpinner className="mr-2" size="sm"/> : <Feather className="mr-2 h-4 w-4" />}
+                Evolve Symbolic Seed
+              </Button>
             </CardFooter>
+          </Card>
+           <Card className="shadow-xl bg-card/50 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="text-2xl">Cosmic Visualization Seed</CardTitle>
+              <CardDescription>AstraKairos has crafted an archetypal seed phrase for visual contemplation or future AI image generation: "<span className="italic text-accent">{prediction.emergentArchetypeVisualizationSeed}</span>". This hint is embedded in the placeholder below.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="aspect-video w-full overflow-hidden rounded-lg border border-border shadow-inner bg-background/50 flex items-center justify-center relative">
+                <Image
+                  src="https://placehold.co/600x400.png"
+                  alt="Astrological Visualization Placeholder"
+                  width={600}
+                  height={400}
+                  className="object-cover w-full h-full opacity-70"
+                  data-ai-hint={prediction.emergentArchetypeVisualizationSeed} // Dynamically set hint
+                />
+                <Zap className="absolute h-16 w-16 text-accent/70 animate-pulse" /> 
+              </div>
+            </CardContent>
           </Card>
         </div>
       )}
@@ -262,27 +378,8 @@ export default function DivinationPageClient() {
           <p>AstraKairos operates on symbolic interpretation and does not access or store personal data beyond the immediate context of your queries and voluntarily journaled entries within this application.</p>
         </CardContent>
       </Card>
-
-      <Card className="shadow-xl bg-card/50 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle className="text-2xl">Cosmic Visualization</CardTitle>
-          <CardDescription>Visual currents reflecting AstraKairos's interpretation (conceptual).</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="aspect-video w-full overflow-hidden rounded-lg border border-border shadow-inner bg-background/50 flex items-center justify-center">
-            <Image
-              src="https://placehold.co/600x400.png"
-              alt="Astrological Visualization Placeholder"
-              width={600}
-              height={400}
-              className="object-cover w-full h-full opacity-70"
-              data-ai-hint="astrology galaxy stars"
-            />
-             <Sparkles className="absolute h-24 w-24 text-accent opacity-50 animate-pulse" />
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }
 
+    

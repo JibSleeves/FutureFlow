@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -14,7 +15,7 @@ const AccordionItem = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AccordionPrimitive.Item
     ref={ref}
-    className={cn("border-b", className)}
+    className={cn("border-t border-b border-border/50", className)} // Adjusted border for better visual separation
     {...props}
   />
 ))
@@ -28,13 +29,13 @@ const AccordionTrigger = React.forwardRef<
     <AccordionPrimitive.Trigger
       ref={ref}
       className={cn(
-        "flex flex-1 items-center justify-between py-4 font-medium transition-all hover:underline [&[data-state=open]>svg]:rotate-180",
+        "flex flex-1 items-center justify-between py-4 font-medium transition-all hover:underline text-primary/90 [&[data-state=open]>svg]:rotate-180", // Adjusted text color
         className
       )}
       {...props}
     >
       {children}
-      <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
+      <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 text-primary/90" /> 
     </AccordionPrimitive.Trigger>
   </AccordionPrimitive.Header>
 ))
@@ -56,3 +57,5 @@ const AccordionContent = React.forwardRef<
 AccordionContent.displayName = AccordionPrimitive.Content.displayName
 
 export { Accordion, AccordionItem, AccordionTrigger, AccordionContent }
+
+    

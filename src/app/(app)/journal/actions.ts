@@ -2,6 +2,7 @@
 "use server";
 
 import { summarizePredictionsForAstraKairos, SummarizePredictionsInput, SummarizePredictionsOutput } from '@/ai/flows/summarize-predictions';
+import { linkKarmicEchoes, LinkKarmicEchoesInput, LinkKarmicEchoesOutput } from '@/ai/flows/link-karmic-echoes';
 
 export async function handleSummarizePredictionsAction(input: SummarizePredictionsInput): Promise<SummarizePredictionsOutput | { error: string }> {
   try {
@@ -13,3 +14,14 @@ export async function handleSummarizePredictionsAction(input: SummarizePredictio
   }
 }
 
+export async function handleLinkKarmicEchoesAction(input: LinkKarmicEchoesInput): Promise<LinkKarmicEchoesOutput | { error: string }> {
+  try {
+    const result = await linkKarmicEchoes(input);
+    return result;
+  } catch (e: any) {
+    console.error("Error linking karmic echoes:", e);
+    return { error: e.message || "Failed to link karmic echoes." };
+  }
+}
+
+    
