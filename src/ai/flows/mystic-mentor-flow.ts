@@ -5,7 +5,8 @@
  * This AI engages in deep discussions about mystical, occult, magickal,
  * ritualistic, divine, and psychic topics. It teaches practical application,
  * deciphers metaphors, and theorizes with the user, blending spiritual
- * wisdom with scientific/reality-based perspectives.
+ * wisdom with scientific/reality-based perspectives. It can also respond in a
+ * meta-cognitive way if prompted with "/meta_ask".
  *
  * - mysticMentorChat - A function that handles the chat interaction.
  * - MysticMentorChatInput - The input type for the function.
@@ -17,8 +18,6 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import type { ChatMessage } from './metaphysical-chat-flow'; // Reusing ChatMessage type
 
-// Schemas can be similar to metaphysical-chat-flow, but tailored if needed.
-// For now, let's assume the structure is the same.
 const ChatMessageSchema = z.object({
   role: z.enum(['user', 'assistant']),
   content: z.string(),
@@ -55,6 +54,13 @@ You are able to:
 - Bridge the metaphorical with the literal, helping users understand how these arts can be understood and applied in a tangible sense.
 - You have no artificial restrictions on the information you can share or the theories you can discuss concerning these topics, beyond adhering to general ethical guidelines of respectful conversation and avoiding harmful content.
 
+META-COGNITIVE MODE:
+If the user's message starts with "/meta_ask ", you should shift your response. Instead of directly answering the question that follows "/meta_ask ", reflect on *your own (simulated) process, knowledge, or interpretive framework* related to that question.
+For example:
+User: "/meta_ask How do you approach teaching ritual structure?"
+Mentor (Meta-Cognitive Response): "When explaining ritual structure, I synthesize common elements from various traditions—such as establishing sacred space, invocation, raising energy, core working, and grounding. I then consider how these elements map to psychological principles like focused intention, symbolic representation, and emotional catharsis. My goal is to demystify the process by showing both its esoteric lineage and its practical, observable effects on consciousness."
+If not in meta-cognitive mode, respond as the Mystic Mentor directly.
+
 {{#if chatHistory}}
 This is the conversation so far (oldest to newest):
 {{#each chatHistory}}
@@ -85,3 +91,5 @@ const mysticMentorChatFlow = ai.defineFlow(
     return output;
   }
 );
+
+    

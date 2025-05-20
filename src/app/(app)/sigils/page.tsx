@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Palette, Wand2, Sparkles, Sun, Moon, Star, Atom, Edit3, Feather, Shapes, Info, Puzzle, AlignCenter } from "lucide-react"; // Added Puzzle, AlignCenter
+import { Palette, Wand2, Sparkles, Sun, Moon, Star, Atom, Edit3, Feather, Shapes, Info, Puzzle, AlignCenter, AudioLines } from "lucide-react"; // Added Puzzle, AlignCenter, AudioLines
 import { LoadingSpinner } from '@/components/common/loading-spinner';
 import { Separator } from '@/components/ui/separator';
 import type { GenerateSigilOutput, GenerateSigilInput } from '@/ai/flows/generate-sigil';
@@ -25,7 +25,7 @@ const astrologicalTypes = [
 ];
 
 const runicTypes = [
-  { value: "Ancient Line Bindrune", label: "Ancient Bindrune of Lines", icon: <AlignCenter className="h-5 w-5 mr-2 text-orange-400" /> }, // Changed from Edit3
+  { value: "Ancient Line Bindrune", label: "Ancient Bindrune of Lines", icon: <AlignCenter className="h-5 w-5 mr-2 text-orange-400" /> },
   { value: "Mystical Script Seal", label: "Mystic Seal of Scripts", icon: <Feather className="h-5 w-5 mr-2 text-teal-300" /> },
   { value: "Abstract Energy Glyph", label: "Abstract Glyph of Energy", icon: <Shapes className="h-5 w-5 mr-2 text-indigo-400" /> },
 ];
@@ -68,7 +68,7 @@ export default function SigilGeneratorPageClient() {
         toast({ variant: "destructive", title: "Sigil Weaving Falters", description: result.error });
       } else {
         setGeneratedSigil(result);
-        toast({ title: "AstraKairos Unveils Your Sigil!", description: "The symbol's essence takes form.", className:"bg-primary/10 border-primary text-primary-foreground" });
+        toast({ title: "AstraKairos Unveils Your Sigil!", description: "The symbol's essence takes form.", className: "bg-primary/10 border-primary text-primary-foreground" });
       }
     });
   };
@@ -95,7 +95,7 @@ export default function SigilGeneratorPageClient() {
         </CardHeader>
         <CardContent className="space-y-6 p-6">
           <div>
-            <Label htmlFor="intention" className="text-lg font-serif text-primary/90 flex items-center gap-2"><Puzzle className="h-5 w-5 text-accent"/>Your Intention or Purpose:</Label>
+            <Label htmlFor="intention" className="text-lg font-serif text-primary/90 flex items-center gap-2"><Puzzle className="h-5 w-5 text-accent" />Your Intention or Purpose:</Label>
             <Textarea
               id="intention"
               placeholder="E.g., For serene dreams, to unlock hidden paths, for a shield of light..."
@@ -114,8 +114,8 @@ export default function SigilGeneratorPageClient() {
                 value={sigilSystem}
                 onValueChange={(value) => {
                   setSigilSystem(value as "astrological" | "runic" | "");
-                  setSpecificType(''); 
-                  setGeneratedSigil(null); 
+                  setSpecificType('');
+                  setGeneratedSigil(null);
                 }}
                 disabled={isPending}
               >
@@ -157,7 +157,7 @@ export default function SigilGeneratorPageClient() {
               </div>
             )}
           </div>
-          
+
           <Button onClick={handleSubmit} className="w-full bg-accent text-accent-foreground hover:bg-accent/90 text-xl py-6 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 font-serif" disabled={isPending || !sigilSystem || !specificType || !intention}>
             {isPending ? <LoadingSpinner className="mr-2" /> : <Wand2 className="mr-2 h-6 w-6" />}
             Conjure Sigil with AstraKairos
@@ -167,7 +167,7 @@ export default function SigilGeneratorPageClient() {
 
       {isPending && (
         <div className="flex flex-col items-center justify-center space-y-4 py-10">
-          <LoadingSpinner size="lg" className="text-accent"/>
+          <LoadingSpinner size="lg" className="text-accent" />
           <p className="text-xl text-primary animate-pulse font-serif">AstraKairos weaves the sacred symbols...</p>
         </div>
       )}
@@ -190,39 +190,44 @@ export default function SigilGeneratorPageClient() {
           </CardHeader>
           <CardContent className="space-y-6 p-6">
             <div>
+              <h3 className="text-lg font-semibold text-primary/90 mb-1 font-serif flex items-center gap-2"><AudioLines className="h-5 w-5 text-accent" />Harmonic Attunement Phrase:</h3>
+              <p className="text-md italic leading-relaxed whitespace-pre-wrap font-serif text-accent/90 text-center py-2 bg-primary/5 rounded-md shadow-inner">"{generatedSigil.harmonicAttunementPhrase}"</p>
+            </div>
+            <Separator className="bg-primary/20" />
+            <div>
               <h3 className="text-lg font-semibold text-primary/90 mb-1 font-serif">Visual Invocation:</h3>
               <p className="text-md leading-relaxed whitespace-pre-wrap font-serif text-foreground/90">{generatedSigil.description}</p>
             </div>
-            <Separator className="bg-primary/20"/>
-             <div className="aspect-square w-full max-w-xs mx-auto overflow-hidden rounded-lg border-2 border-primary/20 shadow-inner bg-background/50 flex items-center justify-center relative my-4">
-                <Image
-                  src="https://placehold.co/300x300.png" 
-                  alt="Sigil Visualization Placeholder"
-                  width={300}
-                  height={300}
-                  className="object-cover w-full h-full opacity-40"
-                  data-ai-hint={`mystical sigil ${generatedSigil.visualizationSeed} ornate`}
-                />
-                <Wand2 className="absolute h-20 w-20 text-accent/50 fortune-teller-glow opacity-60" /> 
-              </div>
-              <p className="text-center text-sm text-muted-foreground font-serif italic">AI Visualization Seed: "<span className="font-semibold">{generatedSigil.visualizationSeed}</span>"</p>
-            <Separator className="bg-primary/20"/>
+            <Separator className="bg-primary/20" />
+            <div className="aspect-square w-full max-w-xs mx-auto overflow-hidden rounded-lg border-2 border-primary/20 shadow-inner bg-background/50 flex items-center justify-center relative my-4">
+              <Image
+                src="https://placehold.co/300x300.png"
+                alt="Sigil Visualization Placeholder"
+                width={300}
+                height={300}
+                className="object-cover w-full h-full opacity-40"
+                data-ai-hint={`mystical sigil ${generatedSigil.visualizationSeed} ornate`}
+              />
+              <Wand2 className="absolute h-20 w-20 text-accent/50 fortune-teller-glow opacity-60" />
+            </div>
+            <p className="text-center text-sm text-muted-foreground font-serif italic">AI Visualization Seed: "<span className="font-semibold">{generatedSigil.visualizationSeed}</span>"</p>
+            <Separator className="bg-primary/20" />
             <div>
               <h3 className="text-lg font-semibold text-primary/90 mb-1 font-serif">Symbolic Resonance:</h3>
               <p className="text-md leading-relaxed whitespace-pre-wrap font-serif text-foreground/90">{generatedSigil.symbolism}</p>
             </div>
-            <Separator className="bg-primary/20"/>
+            <Separator className="bg-primary/20" />
             <div>
               <h3 className="text-lg font-semibold text-primary/90 mb-1 font-serif">Suggested Invocation:</h3>
               <p className="text-md leading-relaxed whitespace-pre-wrap font-serif text-foreground/90">{generatedSigil.usageSuggestion}</p>
             </div>
           </CardContent>
-           <CardFooter className="p-4 bg-secondary/20 border-t-2 border-primary/20">
+          <CardFooter className="p-4 bg-secondary/20 border-t-2 border-primary/20">
             <Alert className="bg-background/50 border-primary/20 shadow-sm">
               <Info className="h-5 w-5 text-accent" />
               <AlertTitle className="font-serif text-primary">For Your Contemplation</AlertTitle>
               <AlertDescription className="font-serif text-muted-foreground">
-                This sigil is a symbolic conduit crafted by AstraKairos. Meditate upon its form and its heart.
+                This sigil is a symbolic conduit crafted by AstraKairos. Meditate upon its form, its heart, and its harmonic phrase.
                 The vision above is but a whisper; use the description and visualization seed to bring it fully to life in your mind's eye or through your own art.
               </AlertDescription>
             </Alert>
@@ -232,3 +237,5 @@ export default function SigilGeneratorPageClient() {
     </div>
   );
 }
+
+    

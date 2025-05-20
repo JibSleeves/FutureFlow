@@ -10,11 +10,14 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ScrollText, Lightbulb, Link2, Trash2, BookOpenCheck, Sparkles, BookMarked } from "lucide-react"; // Updated icons
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { ScrollText, Lightbulb, Link2, Trash2, BookOpenCheck, Sparkles, BookMarked, Milestone, Symmetry } from "lucide-react"; // Added Milestone, Symmetry
 import { LoadingSpinner } from '@/components/common/loading-spinner';
 import { format } from 'date-fns';
-import { handleSummarizePredictionsAction, handleLinkKarmicEchoesAction } from './actions';
+import { handleSummarizePredictionsAction, handleLinkKarmicEchoesAction, handleAnalyzeSymbolicPolarityAction } from './actions';
 import { adaptPredictionForKarmicLink } from '@/lib/adapters';
+import { cn } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
 
 export default function JournalPageClient() {
   const { predictions, getPredictions, clearJournal } = useJournal();
@@ -28,6 +31,10 @@ export default function JournalPageClient() {
   const [karmicLinkAnalysis, setKarmicLinkAnalysis] = useState<string | null>(null);
   const [isLinking, startLinkTransition] = useTransition();
 
+  const [polarityAnalysisResult, setPolarityAnalysisResult] = useState<{ originalTheme: string; polarityAnalysis: string; entryQuery: string } | null>(null);
+  const [isAnalyzingPolarity, startPolarityTransition] = useTransition();
+  const [showPolarityDialog, setShowPolarityDialog] = useState(false);
+
 
   useEffect(() => {
     setJournalEntries(getPredictions());
@@ -40,7 +47,8 @@ export default function JournalPageClient() {
       return;
     }
     setError(null);
-    setKarmicLinkAnalysis(null); 
+    setKarmicLinkAnalysis(null);
+    setPolarityAnalysisResult(null);
     setArchetypalSummary(null);
 
     const predictionsText = journalEntries
@@ -58,11 +66,12 @@ export default function JournalPageClient() {
       }
     });
   };
-  
+
   const handleClearJournal = () => {
     clearJournal();
     setArchetypalSummary(null);
     setKarmicLinkAnalysis(null);
+    setPolarityAnalysisResult(null);
     setSelectedEntryIds([]);
     setError(null);
     toast({ title: "Chronicle Wiped Clean", description: "The Oracle's slate is cleared.", className: "bg-destructive/10 border-destructive text-destructive-foreground" });
@@ -76,7 +85,7 @@ export default function JournalPageClient() {
       if (prev.length < 2) {
         return [...prev, entryId];
       }
-      return [prev[1], entryId];
+      return [prev[1], entryId]; // Keep last selected and add new, effectively a rolling 2
     });
   };
 
@@ -86,7 +95,8 @@ export default function JournalPageClient() {
       return;
     }
     setError(null);
-    setArchetypalSummary(null); 
+    setArchetypalSummary(null);
+    setPolarityAnalysisResult(null);
     setKarmicLinkAnalysis(null);
 
     const entry1 = journalEntries.find(e => e.id === selectedEntryIds[0]);
@@ -96,8 +106,8 @@ export default function JournalPageClient() {
       toast({ variant: "destructive", title: "Chronicle Lost", description: "Selected entries not found in the mists." });
       return;
     }
-    
-    const sortedEntries = [entry1, entry2].sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    const sortedEntries = [entry1, entry2].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
     startLinkTransition(async () => {
       const input = {
@@ -111,6 +121,30 @@ export default function JournalPageClient() {
       } else {
         setKarmicLinkAnalysis(result.karmicLinkAnalysis);
         toast({ title: "Karmic Threads Revealed", description: "AstraKairos unveils the connections.", className: "bg-primary/10 border-primary text-primary-foreground" });
+      }
+    });
+  };
+
+  const handleAnalyzePolarity = (entry: Prediction) => {
+    setError(null);
+    setArchetypalSummary(null);
+    setKarmicLinkAnalysis(null);
+    setPolarityAnalysisResult(null);
+
+    startPolarityTransition(async () => {
+      const input = {
+        readingQuery: entry.query,
+        readingSummary: entry.prediction,
+        readingDate: entry.date,
+      };
+      const result = await handleAnalyzeSymbolicPolarityAction(input);
+      if ('error' in result) {
+        setError(result.error);
+        toast({ variant: "destructive", title: "Polarity Obscured", description: result.error });
+      } else {
+        setPolarityAnalysisResult({ ...result, entryQuery: entry.query });
+        setShowPolarityDialog(true);
+        toast({ title: "Symbolic Polarity Revealed", description: "AstraKairos offers a counterpoint.", className: "bg-primary/10 border-primary text-primary-foreground" });
       }
     });
   };
@@ -129,68 +163,68 @@ export default function JournalPageClient() {
 
       <Card className="shadow-2xl bg-card/70 backdrop-blur-md border-2 border-primary/30 rounded-xl overflow-hidden">
         <CardHeader className="bg-secondary/40 p-5 border-b-2 border-primary/30">
-          <CardTitle className="text-2xl flex items-center gap-2 font-serif text-primary"><Sparkles className="text-accent h-7 w-7 animate-pulse"/>AstraKairos's Reflections</CardTitle>
-          <CardDescription className="font-serif italic text-muted-foreground">Distill recurring motifs from all chronicles, or link karmic threads between two specific visions.</CardDescription>
+          <CardTitle className="text-2xl flex items-center gap-2 font-serif text-primary"><Sparkles className="text-accent h-7 w-7 animate-pulse" />AstraKairos's Reflections</CardTitle>
+          <CardDescription className="font-serif italic text-muted-foreground">Distill recurring motifs, link karmic threads between two visions, or analyze a single vision's polarity.</CardDescription>
         </CardHeader>
         <CardContent className="p-6 min-h-[150px]">
-          {(isSummarizing || isLinking) && <div className="flex justify-center py-4"><LoadingSpinner className="text-accent"/></div>}
-          
-          {archetypalSummary && !isSummarizing && !isLinking && (
+          {(isSummarizing || isLinking || isAnalyzingPolarity) && <div className="flex justify-center py-4"><LoadingSpinner className="text-accent" /></div>}
+
+          {archetypalSummary && !isSummarizing && !isLinking && !isAnalyzingPolarity && (
             <div className="p-4 my-4 border-2 border-dashed border-accent/70 rounded-lg bg-accent/10 shadow-inner">
               <h3 className="text-lg font-semibold text-accent mb-2 font-serif">Archetypal Path Illumination:</h3>
               <p className="text-base leading-relaxed whitespace-pre-wrap text-foreground/90">{archetypalSummary}</p>
             </div>
           )}
 
-          {karmicLinkAnalysis && !isLinking && !isSummarizing && (
+          {karmicLinkAnalysis && !isLinking && !isSummarizing && !isAnalyzingPolarity && (
             <div className="p-4 my-4 border-2 border-dashed border-primary/70 rounded-lg bg-primary/10 shadow-inner">
               <h3 className="text-lg font-semibold text-primary mb-2 font-serif">Karmic Thread Analysis:</h3>
               <p className="text-base leading-relaxed whitespace-pre-wrap text-foreground/90">{karmicLinkAnalysis}</p>
-              <p className="text-xs text-muted-foreground mt-3 font-serif">Analysis based on entries from: {selectedEntryIds.map(id => format(new Date(journalEntries.find(e=>e.id===id)?.date || Date.now()), 'MMMM d, yyyy')).join(' & ')}</p>
+              <p className="text-xs text-muted-foreground mt-3 font-serif">Analysis based on entries from: {selectedEntryIds.map(id => format(new Date(journalEntries.find(e => e.id === id)?.date || Date.now()), 'MMMM d, yyyy')).join(' & ')}</p>
             </div>
           )}
 
-          {error && !isSummarizing && !isLinking && (
+          {error && !isSummarizing && !isLinking && !isAnalyzingPolarity &&(
             <Alert variant="destructive" className="shadow-md mt-4">
               <Sparkles className="h-4 w-4" />
               <AlertTitle className="font-serif">Reflection Error</AlertTitle>
               <AlertDescription className="font-serif">{error}</AlertDescription>
             </Alert>
           )}
-          {!archetypalSummary && !karmicLinkAnalysis && !isSummarizing && !isLinking && journalEntries.length > 0 && (
+          {!archetypalSummary && !karmicLinkAnalysis && !polarityAnalysisResult && !isSummarizing && !isLinking && !isAnalyzingPolarity && journalEntries.length > 0 && (
             <p className="text-center text-muted-foreground py-4 font-serif italic">
-              Invoke AstraKairos to summarize your path or link echoes between two entries.
+              Invoke AstraKairos to summarize your path, link echoes, or analyze polarity.
             </p>
           )}
-           {!archetypalSummary && !karmicLinkAnalysis && !isSummarizing && !isLinking && journalEntries.length === 0 && (
+          {!archetypalSummary && !karmicLinkAnalysis && !polarityAnalysisResult && !isSummarizing && !isLinking && !isAnalyzingPolarity && journalEntries.length === 0 && (
             <p className="text-center text-muted-foreground py-4 font-serif italic">
               The Oracle's Chronicle is empty. Seek a vision to begin.
             </p>
           )}
         </CardContent>
-        <CardFooter className="flex flex-col sm:flex-row justify-between gap-3 p-4 border-t-2 border-primary/20 bg-secondary/20">
-          <Button 
-            onClick={handleSummarize} 
-            disabled={isSummarizing || isLinking || journalEntries.length === 0} 
-            className="w-full sm:w-auto bg-accent text-accent-foreground hover:bg-accent/90 font-serif text-md py-3 rounded-md shadow-md hover:shadow-lg transition-all"
+        <CardFooter className="flex flex-col sm:flex-row justify-between items-center gap-3 p-4 border-t-2 border-primary/20 bg-secondary/20 flex-wrap">
+          <Button
+            onClick={handleSummarize}
+            disabled={isSummarizing || isLinking || isAnalyzingPolarity || journalEntries.length === 0}
+            className="w-full sm:flex-1 md:w-auto bg-accent text-accent-foreground hover:bg-accent/90 font-serif text-md py-3 rounded-md shadow-md hover:shadow-lg transition-all"
           >
             {isSummarizing ? <LoadingSpinner className="mr-2" /> : <Lightbulb className="mr-2 h-5 w-5" />}
             Summarize Archetypal Path
           </Button>
-           <Button 
-            onClick={handleLinkEchoes} 
-            disabled={isLinking || isSummarizing || selectedEntryIds.length !== 2} 
-            className="w-full sm:w-auto border-primary/70 text-primary hover:bg-primary/20 font-serif text-md py-3 rounded-md shadow-md hover:shadow-lg transition-all"
+          <Button
+            onClick={handleLinkEchoes}
+            disabled={isLinking || isSummarizing || isAnalyzingPolarity || selectedEntryIds.length !== 2}
+            className="w-full sm:flex-1 md:w-auto border-primary/70 text-primary hover:bg-primary/20 font-serif text-md py-3 rounded-md shadow-md hover:shadow-lg transition-all"
             variant="outline"
           >
             {isLinking ? <LoadingSpinner className="mr-2" /> : <Link2 className="mr-2 h-5 w-5" />}
             Link Karmic Threads (Select 2)
           </Button>
-          <Button 
-            onClick={handleClearJournal} 
-            variant="destructive" 
-            disabled={journalEntries.length === 0}
-            className="w-full sm:w-auto font-serif text-md py-3 rounded-md shadow-md hover:shadow-lg transition-all"
+          <Button
+            onClick={handleClearJournal}
+            variant="destructive"
+            disabled={isSummarizing || isLinking || isAnalyzingPolarity || journalEntries.length === 0}
+            className="w-full sm:flex-1 md:w-auto font-serif text-md py-3 rounded-md shadow-md hover:shadow-lg transition-all"
           >
             <Trash2 className="mr-2 h-5 w-5" /> Clear Chronicle
           </Button>
@@ -208,17 +242,17 @@ export default function JournalPageClient() {
         ) : (
           <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
             {journalEntries.map((entry) => (
-              <Card key={entry.id} className={cn("shadow-lg bg-card/80 backdrop-blur-xs hover:shadow-primary/30 transition-shadow duration-300 border-2 border-primary/20 rounded-lg overflow-hidden", selectedEntryIds.includes(entry.id) ? 'ring-2 ring-offset-2 ring-offset-background ring-accent shadow-accent/30' : 'hover:border-primary/40')}>
+              <Card key={entry.id} className={cn("shadow-lg bg-card/80 backdrop-blur-xs hover:shadow-primary/30 transition-shadow duration-300 border-2 border-primary/20 rounded-lg overflow-hidden flex flex-col", selectedEntryIds.includes(entry.id) ? 'ring-2 ring-offset-2 ring-offset-background ring-accent shadow-accent/30' : 'hover:border-primary/40')}>
                 <CardHeader className="bg-secondary/30 p-4 border-b border-primary/20">
                   <div className="flex justify-between items-start">
                     <div>
-                      <CardTitle className="flex items-center gap-2 text-xl font-serif text-primary"><ScrollText className="text-accent h-6 w-6"/>Query Made</CardTitle>
+                      <CardTitle className="flex items-center gap-2 text-xl font-serif text-primary"><ScrollText className="text-accent h-6 w-6" />Query Made</CardTitle>
                       <CardDescription className="text-sm italic text-muted-foreground font-serif">
                         Asked on {format(new Date(entry.date), 'MMMM d, yyyy \'at\' h:mm a')}
                       </CardDescription>
                     </div>
                     <div className="flex items-center space-x-2 pt-1">
-                       <Label htmlFor={`select-${entry.id}`} className="text-sm font-serif text-muted-foreground cursor-pointer hover:text-primary">Select</Label>
+                      <Label htmlFor={`select-${entry.id}`} className="text-sm font-serif text-muted-foreground cursor-pointer hover:text-primary">Select</Label>
                       <Checkbox
                         id={`select-${entry.id}`}
                         checked={selectedEntryIds.includes(entry.id)}
@@ -230,19 +264,57 @@ export default function JournalPageClient() {
                   </div>
                   <p className="pt-2 font-serif text-foreground/90">{entry.query}</p>
                 </CardHeader>
-                <CardContent className="p-4">
-                  <h3 className="font-semibold mb-1 text-primary font-serif flex items-center gap-2"><BookOpenCheck className="h-5 w-5 text-accent"/>AstraKairos's Chronicled Insight:</h3>
+                <CardContent className="p-4 flex-grow">
+                  <h3 className="font-semibold mb-1 text-primary font-serif flex items-center gap-2"><BookOpenCheck className="h-5 w-5 text-accent" />AstraKairos's Chronicled Insight:</h3>
                   <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap font-serif">{entry.prediction}</p>
-                  {entry.visualizationHint && <p className="text-xs text-accent/80 mt-2 italic font-serif">Visualization Seed: {entry.visualizationHint}</p>}
+                  {entry.visualizationHint && <p className="text-xs text-accent/80 mt-2 italic font-serif">Archetype Seed: {entry.visualizationHint}</p>}
+                  {entry.auraPaletteSeed && <p className="text-xs text-accent/80 mt-1 italic font-serif">Aura Palette Seed: {entry.auraPaletteSeed}</p>}
+                  {entry.dailySymbolicFocusUsed && <p className="text-xs text-primary/70 mt-1 italic font-serif">Daily Focus active: {entry.dailySymbolicFocusUsed}</p>}
                   {entry.symbolicSeedUsed && <p className="text-xs text-primary/70 mt-1 italic font-serif">Symbolic Seed Used: {entry.symbolicSeedUsed}</p>}
-                   {entry.chronoSymbolicMomentDate && <p className="text-xs text-muted-foreground/80 mt-1 italic font-serif">Chrono Date: {format(new Date(entry.chronoSymbolicMomentDate), 'MMM d, yyyy, h:mm a')}</p>}
+                  {entry.chronoSymbolicMomentDate && <p className="text-xs text-muted-foreground/80 mt-1 italic font-serif">Chrono Date: {format(new Date(entry.chronoSymbolicMomentDate), 'MMM d, yyyy, h:mm a')}</p>}
                   {entry.chronoSymbolicMomentFeeling && <p className="text-xs text-muted-foreground/80 mt-1 italic font-serif">Chrono Feeling: {entry.chronoSymbolicMomentFeeling}</p>}
                 </CardContent>
+                <CardFooter className="p-3 border-t border-primary/20 bg-secondary/20">
+                   <Button 
+                    onClick={() => handleAnalyzePolarity(entry)} 
+                    variant="outline" 
+                    size="sm"
+                    className="w-full border-accent/70 text-accent hover:bg-accent/20 font-serif text-sm"
+                    disabled={isAnalyzingPolarity || isLinking || isSummarizing}
+                  >
+                    {isAnalyzingPolarity && polarityAnalysisResult?.entryQuery === entry.query ? <LoadingSpinner size="sm" className="mr-2"/> : <Symmetry className="mr-2 h-4 w-4"/>}
+                    Analyze Symbolic Polarity
+                  </Button>
+                </CardFooter>
               </Card>
             ))}
           </div>
         )}
       </div>
+      {showPolarityDialog && polarityAnalysisResult && (
+        <AlertDialog open={showPolarityDialog} onOpenChange={setShowPolarityDialog}>
+          <AlertDialogContent className="max-w-lg">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="font-serif text-primary flex items-center gap-2">
+                <Symmetry className="text-accent h-6 w-6"/>Symbolic Polarity Analysis
+              </AlertDialogTitle>
+              <AlertDialogDescription className="font-serif text-left text-md text-muted-foreground">
+                For your query: <strong className="text-primary/90">"{polarityAnalysisResult.entryQuery}"</strong>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="my-4 space-y-3 text-sm text-foreground/90 font-serif max-h-[50vh] overflow-y-auto px-1">
+                <p><strong className="text-primary">Identified Core Theme:</strong> {polarityAnalysisResult.originalTheme}</p>
+                <Separator className="my-2 bg-border/40"/>
+                <p><strong className="text-accent">Polarity Reflection:</strong> {polarityAnalysisResult.polarityAnalysis}</p>
+            </div>
+            <AlertDialogFooter>
+              <AlertDialogAction onClick={() => setShowPolarityDialog(false)} className="font-serif bg-accent hover:bg-accent/90 text-accent-foreground">Close</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </div>
   );
 }
+
+    

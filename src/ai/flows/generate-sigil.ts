@@ -3,6 +3,7 @@
 /**
  * @fileOverview Generates descriptive details for a mystical sigil based on user intention
  * and chosen symbolic system (Astrological or Runic).
+ * Includes a Harmonic Attunement Phrase for the sigil.
  *
  * - generateSigil - A function that returns sigil details.
  * - GenerateSigilInput - The input type for the function.
@@ -25,6 +26,7 @@ const GenerateSigilOutputSchema = z.object({
   symbolism: z.string().describe('An explanation of the metaphysical and symbolic meaning behind the sigil\'s design elements and how they relate to the intention and chosen type.'),
   usageSuggestion: z.string().describe('A brief suggestion for how the user might activate, meditate upon, or utilize this sigil.'),
   visualizationSeed: z.string().describe('A short (3-7 words) evocative phrase suitable for an AI image generator to create a visual representation of this sigil. Should be concise and highly symbolic.'),
+  harmonicAttunementPhrase: z.string().describe('A short (3-7 words) mantra or affirmation specifically crafted to resonate with the sigil\'s intention and symbolism, for meditation or spoken activation.'),
 });
 export type GenerateSigilOutput = z.infer<typeof GenerateSigilOutputSchema>;
 
@@ -58,6 +60,7 @@ And the specific archetype/style: "{{specificType}}"
   - symbolism: Explain the deeper metaphysical and astrological symbolism behind the sigil's design elements and how they relate to the user's intention and the "{{specificType}}".
   - usageSuggestion: A brief, actionable suggestion for how the user might activate or meditate upon this sigil (e.g., "Visualize this sigil under the light of the full moon to enhance intuitive clarity.").
   - visualizationSeed: A short (3-7 words) evocative phrase for an AI image generator to create a visual representation of this sigil. Example: "Radiant Sun Lion Emblem". Ensure this is distinct and highly symbolic.
+  - harmonicAttunementPhrase: A short (3-7 words) mantra or affirmation specifically crafted to resonate with this sigil's intention and symbolism. Example: "My power shines, my path unfolds."
 {{/if}}
 
 {{#if (eq sigilSystem "runic")}}
@@ -74,6 +77,7 @@ And the specific archetype/style: "{{specificType}}"
   - symbolism: Explain the symbolic meaning of the forms chosen, and how they relate to the user's intention and the "{{specificType}}".
   - usageSuggestion: A brief, actionable suggestion for how the user might activate or meditate upon this sigil (e.g., "Trace this bindrune in the air to invoke its protective qualities.").
   - visualizationSeed: A short (3-7 words) evocative phrase for an AI image generator to create a visual representation of this sigil. Example: "Interwoven Lines Power Seal". Ensure this is distinct and highly symbolic.
+  - harmonicAttunementPhrase: A short (3-7 words) mantra or affirmation specifically crafted to resonate with this sigil's intention and symbolism. Example: "My will takes form, my strength endures."
 {{/if}}
 `,
 });
@@ -92,3 +96,5 @@ const generateSigilFlow = ai.defineFlow(
     return output;
   }
 );
+
+    

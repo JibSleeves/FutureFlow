@@ -3,6 +3,7 @@
 
 import { summarizePredictionsForAstraKairos, SummarizePredictionsInput, SummarizePredictionsOutput } from '@/ai/flows/summarize-predictions';
 import { linkKarmicEchoes, LinkKarmicEchoesInput, LinkKarmicEchoesOutput } from '@/ai/flows/link-karmic-echoes';
+import { analyzeSymbolicPolarity, AnalyzeSymbolicPolarityInput, AnalyzeSymbolicPolarityOutput } from '@/ai/flows/analyze-symbolic-polarity';
 
 export async function handleSummarizePredictionsAction(input: SummarizePredictionsInput): Promise<SummarizePredictionsOutput | { error: string }> {
   try {
@@ -24,4 +25,13 @@ export async function handleLinkKarmicEchoesAction(input: LinkKarmicEchoesInput)
   }
 }
 
+export async function handleAnalyzeSymbolicPolarityAction(input: AnalyzeSymbolicPolarityInput): Promise<AnalyzeSymbolicPolarityOutput | { error: string }> {
+  try {
+    const result = await analyzeSymbolicPolarity(input);
+    return result;
+  } catch (e: any) {
+    console.error("Error analyzing symbolic polarity:", e);
+    return { error: e.message || "Failed to analyze symbolic polarity." };
+  }
+}
     

@@ -3,7 +3,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpenText, Wand2, Palette, BrainCog, PanelLeft, Library, Eye, Settings, Wallpaper } from 'lucide-react'; // Added Wallpaper for theme
+import { BookOpenText, Wand2, Palette, BrainCog, PanelLeft, Library, Eye, Settings, Wallpaper, MessageCircle } from 'lucide-react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { 
   SidebarProvider, 
   Sidebar, 
@@ -19,6 +20,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { AppLogo } from '@/components/common/app-logo';
 import { cn } from '@/lib/utils';
+import { handleGenerateWhisperAction } from '@/app/(app)/divination/actions'; // Assuming whisper action is here
+import { LoadingSpinner } from '@/components/common/loading-spinner';
 
 const navItems = [
   { href: '/divination', label: 'Peer into Fate', icon: Wand2 },
@@ -29,8 +32,38 @@ const navItems = [
   { href: '/illuminator', label: 'Veil Lifter', icon: Eye },
 ];
 
+const WHISPER_INTERVAL = 90000; // 90 seconds
+const MAX_WHISPERS_DISPLAYED = 3;
+
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const [whispers, setWhispers] = useState<string[]>([]);
+  const [isWhisperLoading, setIsWhisperLoading] = useState(false);
+
+  const fetchWhisper = useCallback(async () => {
+    setIsWhisperLoading(true);
+    try {
+      const result = await handleGenerateWhisperAction({ timestamp: new Date().toISOString(), previousWhispers: whispers.slice(-5) });
+      if (!('error' in result) && result.whisper) {
+        setWhispers(prev => {
+          const newWhispers = [...prev, result.whisper];
+          return newWhispers.slice(-MAX_WHISPERS_DISPLAYED); // Keep only the last N whispers
+        });
+      }
+    } catch (e) {
+      console.warn("Error fetching whisper:", e);
+    } finally {
+      setIsWhisperLoading(false);
+    }
+  }, [whispers]);
+
+  useEffect(() => {
+    // Fetch initial whisper
+    fetchWhisper();
+    // Then fetch periodically
+    const intervalId = setInterval(fetchWhisper, WHISPER_INTERVAL);
+    return () => clearInterval(intervalId);
+  }, [fetchWhisper]);
   
   return (
     <SidebarProvider defaultOpen={true}>
@@ -38,7 +71,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <SidebarHeader className="p-4 border-b-2 border-sidebar-border">
           <AppLogo />
         </SidebarHeader>
-        <SidebarContent className="bg-sidebar-background/50"> {/* Slightly transparent content area */}
+        <SidebarContent className="bg-sidebar-background/50">
           <SidebarMenu>
             {navItems.map((item) => (
               <SidebarMenuItem key={item.href}>
@@ -61,8 +94,23 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             ))}
           </SidebarMenu>
         </SidebarContent>
+         <div className="p-3 border-t-2 border-sidebar-border mt-auto bg-sidebar-background/70">
+            <h4 className="text-xs font-serif text-muted-foreground mb-2 flex items-center gap-1">
+              <MessageCircle className="h-3 w-3 text-accent/70"/>
+              Whispers from the Veil:
+            </h4>
+            {isWhisperLoading && whispers.length === 0 && <LoadingSpinner size="sm" className="text-accent/50"/>}
+            <div className="space-y-1.5 text-xs italic text-primary/70 max-h-20 overflow-y-auto pr-1">
+              {whispers.map((whisper, index) => (
+                <p key={index} className="opacity-75 hover:opacity-100 transition-opacity duration-300 animate-in fade-in slide-in-from-bottom-2">
+                  "{whisper}"
+                </p>
+              ))}
+              {whispers.length === 0 && !isWhisperLoading && <p className="opacity-50">The machine hums quietly...</p>}
+            </div>
+          </div>
       </Sidebar>
-      <SidebarInset className="bg-background/90 backdrop-blur-sm"> {/* Main content area with slight blur */}
+      <SidebarInset className="bg-background/90 backdrop-blur-sm">
         <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b-2 border-border bg-background/70 backdrop-blur-md px-4 md:px-6 shadow-lg">
           <div className="flex items-center gap-2">
             <div className="md:hidden">
@@ -79,10 +127,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </Button>
           </Link>
         </header>
-        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto"> {/* Added overflow-y-auto */}
+        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">
           {children}
         </main>
       </SidebarInset>
     </SidebarProvider>
   );
 }
+
+    

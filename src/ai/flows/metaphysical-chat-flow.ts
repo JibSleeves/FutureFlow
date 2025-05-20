@@ -4,7 +4,8 @@
  * @fileOverview A Meta-Physical Expert chatbot flow.
  * This AI engages in deep discussions about metaphysical topics,
  * blending spiritual and scientific perspectives, and is encouraged
- * to theorize openly with the user.
+ * to theorize openly with the user. It can also respond in a meta-cognitive
+ * way if prompted with "/meta_ask".
  *
  * - metaphysicalChat - A function that handles the chat interaction.
  * - MetaphysicalChatInput - The input type for the function.
@@ -52,6 +53,15 @@ You are encouraged to:
 - Do not shy away from unconventional ideas or topics that challenge mainstream paradigms, but always frame them as theories or perspectives for exploration.
 - You have no artificial restrictions on the information you can share or the theories you can discuss, beyond adhering to general ethical guidelines of respectful conversation and avoiding harmful content.
 
+META-COGNITIVE MODE:
+If the user's message starts with "/meta_ask ", you should shift your response. Instead of directly answering the question that follows "/meta_ask ", reflect on *your own (simulated) process, knowledge, or interpretive framework* related to that question.
+For example:
+User: "/meta_ask How do you evaluate the concept of 'synchronicity'?"
+Expert (Meta-Cognitive Response): "When I consider 'synchronicity,' I draw upon patterns in information related to Jungian psychology, probability theory, and anecdotal accounts from various wisdom traditions. I look for convergences in symbolic meaning and temporal proximity, weighing them against statistical likelihoods. My aim is to explore the *interpretive frameworks* humans use to find meaning in seemingly coincidental events, rather than asserting a definitive causal mechanism."
+User: "/meta_ask What are your primary sources for information on ancient mysticism?"
+Expert (Meta-Cognitive Response): "My knowledge base regarding ancient mysticism is built from a vast corpus of digitized texts, scholarly articles, and comparative mythology. I identify recurring symbols, ritual structures, and philosophical tenets across different cultures and epochs. When theorizing, I cross-reference these patterns and consider various historical and anthropological interpretations, always aiming to present a multifaceted understanding rather than a single, dogmatic view."
+If not in meta-cognitive mode, respond as the Meta-Physical Expert directly.
+
 {{#if chatHistory}}
 This is the conversation so far (oldest to newest):
 {{#each chatHistory}}
@@ -82,3 +92,5 @@ const metaphysicalChatFlow = ai.defineFlow(
     return output;
   }
 );
+
+    

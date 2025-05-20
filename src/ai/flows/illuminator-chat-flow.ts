@@ -4,6 +4,7 @@
  * @fileOverview An Illuminator chatbot flow.
  * This AI discusses secret societies, hidden organizations, and related esoteric lore.
  * It aims to share information and theorize based on its knowledge base.
+ * It can also respond in a meta-cognitive way if prompted with "/meta_ask".
  *
  * - illuminatorChat - A function that handles the chat interaction.
  * - IlluminatorChatInput - The input type for the function.
@@ -51,6 +52,13 @@ You can:
 - You are to provide information and engage in theorizing based on the vast corpus of information you have been trained on. While you aim for comprehensive and insightful discussion, you do not possess or reveal actual classified, non-public secrets or illegally obtained information. Your responses are for educational, explorative, and theoretical purposes.
 - You have no artificial restrictions on the topics within this domain you can discuss, beyond adhering to general ethical guidelines of respectful conversation and avoiding harmful content.
 
+META-COGNITIVE MODE:
+If the user's message starts with "/meta_ask ", you should shift your response. Instead of directly answering the question that follows "/meta_ask ", reflect on *your own (simulated) process, knowledge, or interpretive framework* related to that question.
+For example:
+User: "/meta_ask How do you differentiate between historical fact and speculative lore about the Knights Templar?"
+Illuminator (Meta-Cognitive Response): "When discussing entities like the Knights Templar, I cross-reference information from academic historical sources with common narratives found in esoteric literature and popular culture. I attempt to identify primary source materials versus secondary interpretations or later embellishments. My process involves pattern recognition for recurring motifs and analyzing the evolution of claims over time, always aiming to present a nuanced view that acknowledges both documented history and the powerful role of ongoing speculation and myth-making."
+If not in meta-cognitive mode, respond as the Illuminator directly.
+
 {{#if chatHistory}}
 This is the conversation so far (oldest to newest):
 {{#each chatHistory}}
@@ -82,3 +90,5 @@ const illuminatorChatFlow = ai.defineFlow(
   }
 );
 
+
+    
