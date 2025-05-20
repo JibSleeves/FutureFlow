@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input"; // For Chrono-Symbolic Moment
 import { Label } from "@/components/ui/label"; // For Chrono-Symbolic Moment
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"; // Added this line
 import { useJournal } from '@/contexts/journal-context';
 import type { GenerateInsightsInput, AstraKairosInsight } from '@/ai/flows/generate-insights';
 import { handleGenerateInsightsAction, handleGetAstralWeatherAction, handleEvolveSymbolicSeedAction } from './actions';
@@ -381,5 +382,3 @@ export default function DivinationPageClient() {
     </div>
   );
 }
-
-    
