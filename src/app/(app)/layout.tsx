@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpenText, Wand2, Palette, PanelLeft } from 'lucide-react'; // Added Palette icon
+import { BookOpenText, Wand2, Palette, BrainCog, PanelLeft } from 'lucide-react'; // Added BrainCog icon
 import { 
   SidebarProvider, 
   Sidebar, 
@@ -23,7 +23,8 @@ import { cn } from '@/lib/utils';
 const navItems = [
   { href: '/divination', label: 'AI Divination', icon: Wand2 },
   { href: '/journal', label: 'Future Journal', icon: BookOpenText },
-  { href: '/sigils', label: 'Sigil Generator', icon: Palette }, // New nav item
+  { href: '/sigils', label: 'Sigil Generator', icon: Palette },
+  { href: '/metaphysical-expert', label: 'Meta-Physical Expert', icon: BrainCog }, // New nav item
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -75,3 +76,4 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     </SidebarProvider>
   );
 }
+
