@@ -1,8 +1,9 @@
+
 "use client";
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpenText, Wand2, Sparkles, PanelLeft } from 'lucide-react';
+import { BookOpenText, Wand2, Palette, PanelLeft } from 'lucide-react'; // Added Palette icon
 import { 
   SidebarProvider, 
   Sidebar, 
@@ -22,6 +23,7 @@ import { cn } from '@/lib/utils';
 const navItems = [
   { href: '/divination', label: 'AI Divination', icon: Wand2 },
   { href: '/journal', label: 'Future Journal', icon: BookOpenText },
+  { href: '/sigils', label: 'Sigil Generator', icon: Palette }, // New nav item
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
