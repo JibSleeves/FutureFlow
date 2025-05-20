@@ -6,21 +6,22 @@ import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input"; // For Chrono-Symbolic Moment
-import { Label } from "@/components/ui/label"; // For Chrono-Symbolic Moment
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"; // Added this line
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useJournal } from '@/contexts/journal-context';
 import type { GenerateInsightsInput, AstraKairosInsight } from '@/ai/flows/generate-insights';
 import { handleGenerateInsightsAction, handleGetAstralWeatherAction, handleEvolveSymbolicSeedAction } from './actions';
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Terminal, Sparkles, Wand2, TestTube2, Layers3, Brain, BookHeart, Scroll, Telescope, Orbit, CalendarDays, Feather, Zap } from "lucide-react";
+import { Terminal, Sparkles, Wand2, TestTube2, Layers3, Brain, BookHeart, Scroll, Telescope, Orbit, CalendarDays, Feather, Zap, Eye, Tags, Sigma } from "lucide-react";
 import { LoadingSpinner } from '@/components/common/loading-spinner';
 import { Separator } from '@/components/ui/separator';
 import { handleSummarizePredictionsAction } from '../journal/actions'; 
 import type { SummarizePredictionsInput } from '@/ai/flows/summarize-predictions';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils'; 
+import { Badge } from '@/components/ui/badge';
 
 const initialSymbolicSeeds = [
   "a raven feather on snow",
@@ -144,8 +145,8 @@ export default function DivinationPageClient() {
       addPredictionToJournal({ 
         query, 
         predictionText: prediction.journalSummaryForUser,
-        visualizationHint: prediction.emergentArchetypeVisualizationSeed, // Save new seed too
-        symbolicSeedUsed: currentSymbolicSeed, // Save the seed used for this reading
+        visualizationHint: prediction.emergentArchetypeVisualizationSeed,
+        symbolicSeedUsed: currentSymbolicSeed,
         chronoSymbolicMomentDate: chronoDate || undefined,
         chronoSymbolicMomentFeeling: chronoFeeling || undefined,
       });
@@ -311,7 +312,21 @@ export default function DivinationPageClient() {
           </SectionCard>
 
           <SectionCard title="Psionic & Clairvoyant Flash" icon={<Brain className="h-5 w-5 text-accent" />} description="Whispers from the subtle realms of probability.">
-            <p className="italic">{prediction.psionicClairvoyantFlash}</p>
+            <p className="italic">{prediction.psionicClairvoyantFlash.description}</p>
+            {prediction.psionicClairvoyantFlash.imageryTags && prediction.psionicClairvoyantFlash.imageryTags.length > 0 && (
+              <div className="mt-3">
+                <h5 className="text-sm font-semibold text-primary/80 mb-1 flex items-center gap-1"><Tags className="h-4 w-4"/>Imagery Tags:</h5>
+                <div className="flex flex-wrap gap-2">
+                  {prediction.psionicClairvoyantFlash.imageryTags.map((tag, index) => (
+                    <Badge key={index} variant="secondary" className="text-xs bg-primary/10 text-primary-foreground/80">{tag}</Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+          </SectionCard>
+
+          <SectionCard title="Observed Symbolic Signatures" icon={<Eye className="h-5 w-5 text-accent" />} description="Key patterns and energies noted by AstraKairos.">
+            <p>{prediction.observedSymbolicSignatures}</p>
           </SectionCard>
           
           <SectionCard title="Mystic Guidance" icon={<BookHeart className="h-5 w-5 text-accent" />} description="Steps to align with the revealed currents.">
@@ -360,7 +375,7 @@ export default function DivinationPageClient() {
                   width={600}
                   height={400}
                   className="object-cover w-full h-full opacity-70"
-                  data-ai-hint={prediction.emergentArchetypeVisualizationSeed} // Dynamically set hint
+                  data-ai-hint={prediction.emergentArchetypeVisualizationSeed} 
                 />
                 <Zap className="absolute h-16 w-16 text-accent/70 animate-pulse" /> 
               </div>
@@ -382,3 +397,5 @@ export default function DivinationPageClient() {
     </div>
   );
 }
+
+    
