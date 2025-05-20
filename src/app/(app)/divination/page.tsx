@@ -64,12 +64,16 @@ export default function DivinationPageClient() {
   const { addPrediction: addPredictionToJournal, getPredictions } = useJournal();
   const { toast } = useToast();
 
-  const [currentSymbolicSeed, setCurrentSymbolicSeed] = useState<string>(() => initialSymbolicSeeds[Math.floor(Math.random() * initialSymbolicSeeds.length)]);
+  const [currentSymbolicSeed, setCurrentSymbolicSeed] = useState<string | null>(null);
   const [chronoDate, setChronoDate] = useState<string>('');
   const [chronoFeeling, setChronoFeeling] = useState<string>('');
   const [astralWeather, setAstralWeather] = useState<string | null>(null);
   const [isWeatherLoading, setIsWeatherLoading] = useState(true);
   const [isEvolvingSeed, setIsEvolvingSeed] = useState(false);
+
+  useEffect(() => {
+    setCurrentSymbolicSeed(initialSymbolicSeeds[Math.floor(Math.random() * initialSymbolicSeeds.length)]);
+  }, []);
 
   const fetchAstralWeather = useCallback(async () => {
     setIsWeatherLoading(true);
@@ -124,7 +128,7 @@ export default function DivinationPageClient() {
       const insightsInput: GenerateInsightsInput = { 
         query, 
         journalHistory: journalHistorySummary || undefined,
-        symbolicSeed: currentSymbolicSeed,
+        symbolicSeed: currentSymbolicSeed || undefined,
         chronoSymbolicMomentDate: chronoDate || undefined,
         chronoSymbolicMomentFeeling: chronoFeeling || undefined,
       };
@@ -146,7 +150,7 @@ export default function DivinationPageClient() {
         query, 
         predictionText: prediction.journalSummaryForUser,
         visualizationHint: prediction.emergentArchetypeVisualizationSeed,
-        symbolicSeedUsed: currentSymbolicSeed,
+        symbolicSeedUsed: currentSymbolicSeed || undefined, // Save current seed, can be null
         chronoSymbolicMomentDate: chronoDate || undefined,
         chronoSymbolicMomentFeeling: chronoFeeling || undefined,
       });
@@ -157,8 +161,8 @@ export default function DivinationPageClient() {
   };
 
   const handleEvolveSeed = async () => {
-    if (!prediction || !prediction.journalSummaryForUser) {
-      toast({ variant: "destructive", title: "Cannot Evolve Seed", description: "A divination result is needed to evolve its seed." });
+    if (!currentSymbolicSeed || !prediction || !prediction.journalSummaryForUser) {
+      toast({ variant: "destructive", title: "Cannot Evolve Seed", description: "A divination result and an active symbolic seed are needed to evolve it." });
       return;
     }
     setIsEvolvingSeed(true);
@@ -203,7 +207,14 @@ export default function DivinationPageClient() {
       <Card className="shadow-xl bg-card/50 backdrop-blur-sm">
         <CardHeader>
           <CardTitle className="text-2xl">Seek Your Fortune</CardTitle>
-          <CardDescription>Pose your query to the ethereal realm. Current Symbolic Seed: <span className="text-accent italic">"{currentSymbolicSeed}"</span></CardDescription>
+          <CardDescription>
+            Pose your query to the ethereal realm. Current Symbolic Seed:{" "}
+            {currentSymbolicSeed ? (
+              <span className="text-accent italic">"{currentSymbolicSeed}"</span>
+            ) : (
+              <span className="text-muted-foreground italic">Initializing seed...</span>
+            )}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-6">
@@ -355,7 +366,7 @@ export default function DivinationPageClient() {
                 onClick={handleEvolveSeed} 
                 variant="outline" 
                 className="w-full sm:flex-1" 
-                disabled={isEvolvingSeed || isPending}
+                disabled={isEvolvingSeed || isPending || !currentSymbolicSeed || !prediction?.journalSummaryForUser}
               >
                 {isEvolvingSeed ? <LoadingSpinner className="mr-2" size="sm"/> : <Feather className="mr-2 h-4 w-4" />}
                 Evolve Symbolic Seed
