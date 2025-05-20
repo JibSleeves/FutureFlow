@@ -14,9 +14,28 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Terminal, Sparkles, Wand2, TestTube2, Layers3, Brain, BookHeart, Scroll } from "lucide-react";
 import { LoadingSpinner } from '@/components/common/loading-spinner';
 import { Separator } from '@/components/ui/separator';
-import { handleSummarizePredictionsAction } from '../journal/actions'; // For LTM
+import { handleSummarizePredictionsAction } from '../journal/actions';
 import type { SummarizePredictionsInput } from '@/ai/flows/summarize-predictions';
 import { format } from 'date-fns';
+import { cn } from '@/lib/utils'; // Ensure cn is imported
+
+const symbolicSeeds = [
+  "a raven feather on snow",
+  "a forgotten melody",
+  "the scent of ozone before a storm",
+  "a spiral staircase descending into mist",
+  "a single, unblinking eye in the clouds",
+  "a cracked hourglass, sand still flowing",
+  "a doorway shimmering with unseen light",
+  "the echo of distant chimes",
+  "a map with uncharted territories",
+  "a silver key turning in an invisible lock",
+  "the rustle of unseen wings",
+  "a constellation that appears only once a century",
+  "a reflection in water showing a different sky",
+  "footprints leading into a wall of fog",
+  "a book whose pages turn themselves",
+];
 
 const SectionCard: React.FC<{ title: string; icon?: React.ReactNode; children: React.ReactNode; description?: string; className?: string }> = ({ title, icon, children, description, className }) => (
   <Card className={cn("shadow-lg bg-card/70 backdrop-blur-sm", className)}>
@@ -60,7 +79,7 @@ export default function DivinationPageClient() {
       if (pastPredictions.length > 0) {
         const predictionsText = pastPredictions
           .map(p => `On ${format(new Date(p.date), 'PPP')}, Query: "${p.query}", AstraKairos Said: "${p.prediction}"`)
-          .slice(0, 5) // Limit history to last 5 for brevity
+          .slice(0, 5) 
           .join('\n\n---\n\n');
         
         const summaryResult = await handleSummarizePredictionsAction({ predictions: `Recent journal entries:\n${predictionsText}` });
@@ -69,7 +88,14 @@ export default function DivinationPageClient() {
         }
       }
 
-      const result = await handleGenerateInsightsAction({ query, journalHistory: journalHistorySummary });
+      const randomSeed = symbolicSeeds[Math.floor(Math.random() * symbolicSeeds.length)];
+
+      const result = await handleGenerateInsightsAction({ 
+        query, 
+        journalHistory: journalHistorySummary,
+        symbolicSeed: randomSeed 
+      });
+
       if ('error' in result) {
         setError(result.error);
         toast({
@@ -91,8 +117,8 @@ export default function DivinationPageClient() {
     if (prediction && query && prediction.journalSummaryForUser) {
       addPredictionToJournal({ 
         query, 
-        predictionText: prediction.journalSummaryForUser, // Using the dedicated summary
-        visualizationHint: "astral cosmic symbols" // Generic hint for now
+        predictionText: prediction.journalSummaryForUser,
+        visualizationHint: "astral cosmic symbols"
       });
       toast({
         title: "Insight Recorded",
@@ -231,7 +257,6 @@ export default function DivinationPageClient() {
         </CardContent>
       </Card>
 
-      {/* Placeholder for Astrological Visualization - keeping it simple for now */}
       <Card className="shadow-xl bg-card/50 backdrop-blur-sm">
         <CardHeader>
           <CardTitle className="text-2xl">Cosmic Visualization</CardTitle>
@@ -254,3 +279,4 @@ export default function DivinationPageClient() {
     </div>
   );
 }
+
