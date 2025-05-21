@@ -4,90 +4,90 @@
 
 @layer base {
   :root {
-    /* Fortune Teller Machine Theme */
-    --background: 25 35% 18%; /* Dark Wood Brown - hsl(25, 35%, 18%) - #4A3B2F */
-    --foreground: 45 50% 88%; /* Aged Parchment - hsl(45, 50%, 88%) - #F0E8D1 */
+    /* Fortune Teller Machine Theme - Refined */
+    --background: 260 30% 10%; /* Deep Indigo/Midnight Blue - hsl(260, 30%, 10%) - #110F1C */
+    --foreground: 35 60% 85%; /* Pale Gold/Old Lace - hsl(35, 60%, 85%) - #F2E5C9 */
 
-    --card: 25 35% 15%; /* Darker Wood for Card BG - hsl(25, 35%, 15%) - #3C3026 */
-    --card-foreground: 45 50% 88%; /* Aged Parchment on Cards */
+    --card: 260 30% 13%; /* Slightly Lighter Deep Indigo for Card BG - hsl(260, 30%, 13%) - #171423 */
+    --card-foreground: 35 60% 85%; /* Pale Gold on Cards */
 
-    --popover: 25 30% 12%; /* Very Dark Wood for Popovers - hsl(25, 30%, 12%) - #2E251E */
-    --popover-foreground: 45 50% 88%; /* Aged Parchment in Popovers */
+    --popover: 260 35% 8%; /* Very Dark Indigo for Popovers - hsl(260, 35%, 8%) - #0D0B15 */
+    --popover-foreground: 35 60% 85%; /* Pale Gold in Popovers */
 
-    --primary: 40 65% 50%; /* Antique Gold/Brass - hsl(40, 65%, 50%) - #D4A037 */
-    --primary-foreground: 30 40% 10%; /* Dark Brown for text on Gold - hsl(30, 40%, 10%) - #261C13 */
+    --primary: 40 80% 55%; /* Richer Antique Gold/Brass - hsl(40, 80%, 55%) - #E6B34D */
+    --primary-foreground: 30 50% 15%; /* Darker Brown for text on Gold - hsl(30, 50%, 15%) - #33220F */
 
-    --secondary: 30 20% 30%; /* Muted Brass/Bronze - hsl(30, 20%, 30%) - #5C4F46 */
-    --secondary-foreground: 45 40% 80%; /* Lighter Parchment on Secondary - hsl(45, 40%, 80%) - #E6DDBF */
+    --secondary: 30 25% 28%; /* Muted Dark Bronze - hsl(30, 25%, 28%) - #594B40 */
+    --secondary-foreground: 35 50% 78%; /* Lighter Old Lace on Secondary - hsl(35, 50%, 78%) - #EBDDC2 */
 
-    --muted: 30 25% 25%; /* Darker Muted Wood - hsl(30, 25%, 25%) - #52453A */
-    --muted-foreground: 45 30% 65%; /* Greyish Parchment for muted text - hsl(45, 30%, 65%) - #BFB6A4 */
+    --muted: 260 20% 20%; /* Darker Muted Indigo - hsl(260, 20%, 20%) - #292633 */
+    --muted-foreground: 35 40% 60%; /* Greyish Gold/Parchment for muted text - hsl(35, 40%, 60%) - #B1A386 */
 
-    --accent: 0 50% 45%; /* Deep Velvet Red - hsl(0, 50%, 45%) - #B53A3A */
-    --accent-foreground: 35 80% 92%; /* Light Cream for text on Red - hsl(35, 80%, 92%) - #FBEFD9 */
+    --accent: 340 65% 50%; /* Deep Ruby/Crimson Red - hsl(340, 65%, 50%) - #D1365E */
+    --accent-foreground: 25 80% 95%; /* Very Light Cream/Ivory for text on Red - hsl(25, 80%, 95%) - #FDF5EE */
 
-    --destructive: 0 60% 40%; /* A richer, slightly darker red for destructive actions - hsl(0, 60%, 40%) - #A62A2A */
-    --destructive-foreground: 35 80% 95%; /* Light Cream for text on destructive - hsl(35, 80%, 95%) - #FDF3E1 */
+    --destructive: 0 70% 45%; /* More Vivid, slightly ominous red for destructive - hsl(0, 70%, 45%) - #C92A2A */
+    --destructive-foreground: 25 80% 95%; /* Light Cream for text on destructive */
 
-    --border: 35 40% 35%; /* Dark Brass/Bronze Border - hsl(35, 40%, 35%) - #79603F */
-    --input: 30 30% 22%; /* Dark Wood for Input BG - hsl(30, 30%, 22%) - #4A4036 */
-    --ring: 40 70% 55%; /* Brighter Gold for focus rings - hsl(40, 70%, 55%) - #E0AB3E */
+    --border: 40 50% 40%; /* Tarnished Gold/Bronze Border - hsl(40, 50%, 40%) - #997433 */
+    --input: 260 30% 16%; /* Dark Indigo for Input BG - hsl(260, 30%, 16%) - #1C1929 */
+    --ring: 40 85% 60%; /* Brighter, more vibrant Gold for focus rings - hsl(40, 85%, 60%) - #F0BC59 */
 
-    --radius: 0.5rem; /* Keep existing radius, or make slightly more ornate if desired */
+    --radius: 0.65rem; /* Slightly more pronounced radius for a softer, antique feel */
 
     /* Chart colors - thematic adjustments */
-    --chart-1: var(--primary); /* Antique Gold */
-    --chart-2: var(--accent); /* Deep Velvet Red */
-    --chart-3: 180 30% 40%; /* Mystic Teal - hsl(180, 30%, 40%) - #477E7E */
-    --chart-4: 45 30% 65%;  /* Muted Parchment */
-    --chart-5: 30 20% 30%;  /* Muted Bronze */
+    --chart-1: var(--primary); 
+    --chart-2: var(--accent); 
+    --chart-3: 190 50% 50%; /* Mystic Teal/Verdigris - hsl(190, 50%, 50%) - #40BFBF */
+    --chart-4: var(--muted-foreground); 
+    --chart-5: var(--secondary);
 
     /* Sidebar specific colors - themed for machine panel */
-    --sidebar-background: 25 35% 12%; /* Even Darker Wood for Sidebar BG - hsl(25, 35%, 12%) - #30261F */
+    --sidebar-background: 260 30% 8%; /* Even Darker Indigo for Sidebar BG - hsl(260, 30%, 8%) - #0E0C17 */
     --sidebar-foreground: var(--foreground);
     --sidebar-primary: var(--primary);
     --sidebar-primary-foreground: var(--primary-foreground);
     --sidebar-accent: var(--accent);
     --sidebar-accent-foreground: var(--accent-foreground);
-    --sidebar-border: 35 40% 25%; /* Darker Brass Border - hsl(35, 40%, 25%) - #5B482F */
+    --sidebar-border: 40 50% 25%; /* Darker Tarnished Gold Border - hsl(40, 50%, 25%) - #664C22 */
     --sidebar-ring: var(--ring);
   }
 
   .dark {
     /* Theme is inherently dark, so .dark vars match :root */
-    --background: 25 35% 18%;
-    --foreground: 45 50% 88%;
-    --card: 25 35% 15%;
-    --card-foreground: 45 50% 88%;
-    --popover: 25 30% 12%;
-    --popover-foreground: 45 50% 88%;
-    --primary: 40 65% 50%;
-    --primary-foreground: 30 40% 10%;
-    --secondary: 30 20% 30%;
-    --secondary-foreground: 45 40% 80%;
-    --muted: 30 25% 25%;
-    --muted-foreground: 45 30% 65%;
-    --accent: 0 50% 45%;
-    --accent-foreground: 35 80% 92%;
-    --destructive: 0 60% 40%;
-    --destructive-foreground: 35 80% 95%;
-    --border: 35 40% 35%;
-    --input: 30 30% 22%;
-    --ring: 40 70% 55%;
+    --background: 260 30% 10%;
+    --foreground: 35 60% 85%;
+    --card: 260 30% 13%;
+    --card-foreground: 35 60% 85%;
+    --popover: 260 35% 8%;
+    --popover-foreground: 35 60% 85%;
+    --primary: 40 80% 55%;
+    --primary-foreground: 30 50% 15%;
+    --secondary: 30 25% 28%;
+    --secondary-foreground: 35 50% 78%;
+    --muted: 260 20% 20%;
+    --muted-foreground: 35 40% 60%;
+    --accent: 340 65% 50%;
+    --accent-foreground: 25 80% 95%;
+    --destructive: 0 70% 45%;
+    --destructive-foreground: 25 80% 95%;
+    --border: 40 50% 40%;
+    --input: 260 30% 16%;
+    --ring: 40 85% 60%;
 
     --chart-1: var(--primary);
     --chart-2: var(--accent);
-    --chart-3: 180 30% 40%;
-    --chart-4: 45 30% 65%;
-    --chart-5: 30 20% 30%;
+    --chart-3: 190 50% 50%;
+    --chart-4: var(--muted-foreground);
+    --chart-5: var(--secondary);
 
-    --sidebar-background: 25 35% 12%;
+    --sidebar-background: 260 30% 8%;
     --sidebar-foreground: var(--foreground);
     --sidebar-primary: var(--primary);
     --sidebar-primary-foreground: var(--primary-foreground);
     --sidebar-accent: var(--accent);
     --sidebar-accent-foreground: var(--accent-foreground);
-    --sidebar-border: 35 40% 25%;
+    --sidebar-border: 40 50% 25%;
     --sidebar-ring: var(--ring);
   }
 }
@@ -98,40 +98,87 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-lora); /* Emphasize Lora for antique feel */
+    font-family: var(--font-lora); 
+    background-image: linear-gradient(rgba(17, 15, 28, 0.95), rgba(17, 15, 28, 0.95)), url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
   }
-  /* Add a subtle texture to the background if desired */
-  /* body::before {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-image: url('data:image/svg+xml,...'); // SVG for wood grain or parchment texture
-    opacity: 0.05;
-    pointer-events: none;
-    z-index: -1;
-  } */
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-lora); /* Ensure headers also use Lora */
-    letter-spacing: 0.025em; /* Slight letter spacing for a more classic feel */
+    font-family: var(--font-lora);
+    letter-spacing: 0.03em; 
+    text-shadow: 1px 1px 2px hsl(var(--background) / 0.5);
   }
 }
 
 /* Additional thematic styles */
 @layer components {
   .fortune-teller-glow {
-    @apply animate-pulse shadow-[0_0_15px_5px_hsl(var(--primary)/0.7)];
+    animation: pulse-glow 2.5s infinite ease-in-out;
+    text-shadow: 0 0 5px hsl(var(--accent)/0.7), 0 0 10px hsl(var(--accent)/0.5), 0 0 15px hsl(var(--accent)/0.3);
   }
   .fortune-teller-velvet {
-    @apply bg-accent text-accent-foreground; /* Using accent as velvet red */
+    @apply bg-accent text-accent-foreground shadow-[inset_0_2px_4px_rgba(0,0,0,0.3),0_1px_1px_rgba(255,255,255,0.1)];
   }
   .fortune-teller-brass-plate {
-    @apply bg-secondary border-primary/50 shadow-md;
+    @apply bg-secondary border-primary/50 shadow-md rounded-sm p-1;
   }
   .fortune-teller-glass-display {
-    @apply bg-background/50 backdrop-blur-sm border-2 border-primary/30 shadow-inner rounded-lg;
+    @apply bg-background/60 backdrop-blur-sm border-2 border-primary/40 shadow-[inset_0_0_10px_hsl(var(--primary)/0.3)] rounded-lg;
+  }
+
+  /* Scrollbar Styling for thematic consistency */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--sidebar-background));
+    border-radius: var(--radius);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: var(--radius);
+    border: 2px solid hsl(var(--sidebar-background));
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary));
+  }
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 3px hsl(var(--primary)/0.6)) drop-shadow(0 0 6px hsl(var(--primary)/0.4));
+  }
+  50% {
+    opacity: 0.8;
+    filter: drop-shadow(0 0 6px hsl(var(--primary)/0.8)) drop-shadow(0 0 12px hsl(var(--primary)/0.6));
+  }
+}
+
+@keyframes subtle-flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.95; }
+}
+
+.text-flicker {
+  animation: subtle-flicker 1.5s infinite ease-in-out;
+}
+
+.dialog-content-ornate {
+  @apply bg-card/90 backdrop-blur-md border-2 border-primary/50 shadow-2xl rounded-xl;
+  & .dialog-header-ornate {
+    @apply border-b-2 border-primary/30 pb-3;
+    & .dialog-title-ornate {
+      @apply text-primary font-lora text-2xl;
+    }
+    & .dialog-description-ornate {
+      @apply text-muted-foreground font-serif italic;
+    }
+  }
+  & .dialog-footer-ornate {
+    @apply border-t-2 border-primary/30 pt-3;
   }
 }

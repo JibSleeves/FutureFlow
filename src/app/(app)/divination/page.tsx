@@ -14,8 +14,8 @@ import type { GenerateInsightsInput, AstraKairosInsight } from '@/ai/flows/gener
 import { handleGenerateInsightsAction, handleGetAstralWeatherAction, handleEvolveSymbolicSeedAction, handleGetDailySymbolicFocusAction } from './actions';
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Sparkles, Wand2, TestTube2, Layers3, Brain, BookHeart, Scroll, Telescope, Orbit, CalendarDays, Feather, Zap, Eye, Tags, Sigma, HandCoins, Palette, SunMoon } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Sparkles, Wand2, TestTube2, Layers3, Brain, BookHeart, Scroll, Telescope, Orbit, CalendarDays, Feather, Zap, Eye, Tags, Sigma, HandCoins, Palette, SunMoon, Hourglass } from "lucide-react"; 
 import { LoadingSpinner } from '@/components/common/loading-spinner';
 import { Separator } from '@/components/ui/separator';
 import { handleSummarizePredictionsAction } from '../journal/actions'; 
@@ -26,33 +26,23 @@ import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 
 const initialSymbolicSeeds = [
-  "a raven feather on snow",
-  "a forgotten melody",
-  "the scent of ozone before a storm",
-  "a spiral staircase descending into mist",
-  "a single, unblinking eye in the clouds",
-  "a cracked hourglass, sand still flowing",
-  "a doorway shimmering with unseen light",
-  "the echo of distant chimes",
-  "a map with uncharted territories",
-  "a silver key turning in an invisible lock",
-  "the rustle of unseen wings",
-  "a constellation that appears only once a century",
-  "a reflection in water showing a different sky",
-  "footprints leading into a wall of fog",
-  "a book whose pages turn themselves",
+  "a raven feather on snow", "a forgotten melody", "the scent of ozone before a storm",
+  "a spiral staircase into mist", "an unblinking eye in the clouds", "a cracked hourglass, sand still flowing",
+  "a doorway shimmering with unseen light", "the echo of distant chimes", "a map with uncharted territories",
+  "a silver key in an invisible lock", "the rustle of unseen wings", "a constellation seen once a century",
+  "a reflection showing a different sky", "footprints into fog", "a self-turning book", "whispers from a hollow tree", "a compass pointing inwards"
 ];
 
 const SectionCard: React.FC<{ title: string; icon?: React.ReactNode; children: React.ReactNode; description?: string; className?: string }> = ({ title, icon, children, description, className }) => (
-  <Card className={cn("shadow-xl bg-card/80 backdrop-blur-sm border-2 border-primary/20 rounded-lg overflow-hidden", className)}>
-    <CardHeader className="bg-secondary/30 p-4 border-b border-primary/20">
-      <CardTitle className="text-xl flex items-center gap-2 text-primary font-serif">
-        {icon || <Sparkles className="h-5 w-5" />}
+  <Card className={cn("shadow-ornate bg-card/80 backdrop-blur-sm border-2 border-primary/20 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-primary/30", className)}>
+    <CardHeader className="bg-secondary/40 p-4 border-b-2 border-primary/30">
+      <CardTitle className="text-xl flex items-center gap-2.5 text-primary font-lora tracking-wider">
+        {icon || <Sparkles className="h-6 w-6 animate-pulse-glow" />}
         {title}
       </CardTitle>
-      {description && <CardDescription className="text-muted-foreground italic text-sm">{description}</CardDescription>}
+      {description && <CardDescription className="text-muted-foreground italic text-sm font-serif">{description}</CardDescription>}
     </CardHeader>
-    <CardContent className="text-base leading-relaxed whitespace-pre-wrap p-4 text-foreground/90">
+    <CardContent className="text-base leading-relaxed whitespace-pre-wrap p-5 text-foreground/90 font-serif">
       {children}
     </CardContent>
   </Card>
@@ -78,7 +68,6 @@ export default function DivinationPageClient() {
   const [showTemporalEchoDialog, setShowTemporalEchoDialog] = useState(false);
   const [temporalEchoData, setTemporalEchoData] = useState<{ pastQuery: string; pastPredictionSummary: string; currentQuery: string } | null>(null);
 
-
   useEffect(() => {
     setCurrentSymbolicSeed(initialSymbolicSeeds[Math.floor(Math.random() * initialSymbolicSeeds.length)]);
   }, []);
@@ -91,11 +80,11 @@ export default function DivinationPageClient() {
         setAstralWeather(weatherResult.astralBriefing);
       } else if ('error' in weatherResult) {
         console.warn("Failed to get astral weather:", weatherResult.error);
-        setAstralWeather("The astral currents are presently veiled by a velvet curtain.");
+        setAstralWeather("The astral currents are presently veiled by a velvet curtain of mystery.");
       }
     } catch (e) {
       console.warn("Exception fetching astral weather:", e);
-      setAstralWeather("The astral currents are unusually quiet, as if holding their breath.");
+      setAstralWeather("The astral currents are unusually quiet, as if holding their breath in anticipation.");
     } finally {
       setIsWeatherLoading(false);
     }
@@ -104,33 +93,33 @@ export default function DivinationPageClient() {
   const fetchDailySymbolicFocus = useCallback(async () => {
     setIsDailyFocusLoading(true);
     const today = formatISO(new Date(), { representation: 'date' });
-    const storedFocus = localStorage.getItem('dailySymbolicFocus');
-    const storedDate = localStorage.getItem('dailySymbolicFocusDate');
-
-    if (storedFocus && storedDate === today) {
-      setDailySymbolicFocus(storedFocus);
-      setIsDailyFocusLoading(false);
-      return;
+    const storedFocusItem = localStorage.getItem('dailySymbolicFocusItem');
+    
+    if (storedFocusItem) {
+      const { focus, date } = JSON.parse(storedFocusItem);
+      if (date === today && focus) {
+        setDailySymbolicFocus(focus);
+        setIsDailyFocusLoading(false);
+        return;
+      }
     }
 
     try {
       const focusResult = await handleGetDailySymbolicFocusAction({ currentDateString: today });
       if (!('error' in focusResult) && focusResult.dailyFocus) {
         setDailySymbolicFocus(focusResult.dailyFocus);
-        localStorage.setItem('dailySymbolicFocus', focusResult.dailyFocus);
-        localStorage.setItem('dailySymbolicFocusDate', today);
+        localStorage.setItem('dailySymbolicFocusItem', JSON.stringify({ focus: focusResult.dailyFocus, date: today }));
       } else if ('error' in focusResult) {
         console.warn("Failed to get daily symbolic focus:", focusResult.error);
-        setDailySymbolicFocus("The day's aura is yet to coalesce.");
+        setDailySymbolicFocus("The day's aura is yet to coalesce into a clear sigil.");
       }
     } catch (e) {
       console.warn("Exception fetching daily symbolic focus:", e);
-      setDailySymbolicFocus("The day's symbolic signature is currently elusive.");
+      setDailySymbolicFocus("The day's symbolic signature remains elusive, hidden in the æther.");
     } finally {
       setIsDailyFocusLoading(false);
     }
   }, []);
-
 
   useEffect(() => {
     fetchAstralWeather();
@@ -138,30 +127,32 @@ export default function DivinationPageClient() {
   }, [fetchAstralWeather, fetchDailySymbolicFocus]);
 
   const checkForTemporalEcho = (currentQuery: string): Prediction | null => {
-    const pastPredictions = getPredictions().slice(0, 5); // Check last 5 predictions
-    const currentQueryLower = currentQuery.toLowerCase().trim();
-    if (currentQueryLower.length < 10) return null; // Avoid matching very short queries
+    const pastPredictions = getPredictions().slice(0, 7); 
+    const currentQueryLower = currentQuery.toLowerCase().trim().replace(/[^\w\s]/gi, '');
+    if (currentQueryLower.length < 10) return null; 
+
+    const currentWordsBase = currentQueryLower.split(" ").filter(w => w.length > 3);
+    if (currentWordsBase.length < 2) return null;
+    const currentWords = new Set(currentWordsBase);
 
     for (const p of pastPredictions) {
-      const pastQueryLower = p.query.toLowerCase().trim();
-      // Simple keyword check: if more than 60% of words match (and at least 3 words)
-      const currentWords = new Set(currentQueryLower.split(" ").filter(w => w.length > 2));
-      const pastWords = new Set(pastQueryLower.split(" ").filter(w => w.length > 2));
-      if (currentWords.size < 3 || pastWords.size < 3) continue;
-
+      const pastQueryLower = p.query.toLowerCase().trim().replace(/[^\w\s]/gi, '');
+      const pastWordsBase = pastQueryLower.split(" ").filter(w => w.length > 3);
+      if (pastWordsBase.length < 2) continue;
+      const pastWords = new Set(pastWordsBase);
+      
       let commonWords = 0;
       currentWords.forEach(word => {
         if (pastWords.has(word)) {
           commonWords++;
         }
       });
-      if ((commonWords / Math.max(currentWords.size, pastWords.size)) > 0.6) {
+      if (currentWords.size > 0 && pastWords.size > 0 && (commonWords / Math.max(currentWords.size, pastWords.size)) > 0.65 && commonWords >=2) {
         return p;
       }
     }
     return null;
   };
-
 
   const performGenerateInsights = async (currentQuery: string) => {
     let journalHistorySummary = "";
@@ -169,10 +160,10 @@ export default function DivinationPageClient() {
     if (pastPredictions.length > 0) {
       const predictionsText = pastPredictions
         .map(p => `On ${format(new Date(p.date), 'PPP')}, Query: "${p.query}", AstraKairos Said: "${p.prediction}"`)
-        .slice(0, 10)
+        .slice(0, 10) 
         .join('\n\n---\n\n');
 
-      const summaryInput: SummarizePredictionsInput = { predictions: `Recent chronicles of fate:\n${predictionsText}` };
+      const summaryInput: SummarizePredictionsInput = { predictions: `Recent chronicles of fate from the Oracle's memory:\n${predictionsText}` };
       const summaryResult = await handleSummarizePredictionsAction(summaryInput);
 
       if (!('error' in summaryResult) && summaryResult.archetypalSummary) {
@@ -197,14 +188,13 @@ export default function DivinationPageClient() {
       toast({ variant: "destructive", title: "AstraKairos Stumbles", description: result.error });
     } else {
       setPrediction(result);
-      toast({ title: "The Oracle Has Spoken!", description: "Your glimpse into the æther has arrived.", className: "bg-primary/10 border-primary text-primary-foreground" });
+      toast({ title: "The Oracle Has Spoken!", description: "Your glimpse into the æther has arrived.", className: "bg-primary/20 border-primary/50 text-primary-foreground shadow-ornate" });
     }
   };
 
-
   const handleSubmit = () => {
     if (!query.trim()) {
-      setError("Whisper your query into the æther, seeker.");
+      setError("Whisper your query into the æther, seeker of truths.");
       toast({ variant: "destructive", title: "Empty Query", description: "Pose your question to the Oracle." });
       return;
     }
@@ -228,20 +218,20 @@ export default function DivinationPageClient() {
     setTemporalEchoData(null);
   };
 
-
   const handleSaveToJournal = () => {
     if (prediction && query && prediction.journalSummaryForUser) {
       addPredictionToJournal({
         query,
+        prediction: prediction.journalSummaryForUser,
         predictionText: prediction.journalSummaryForUser,
         visualizationHint: prediction.emergentArchetypeVisualizationSeed,
-        auraPaletteSeed: prediction.auraPaletteSeed, // Save new seed
-        dailySymbolicFocusUsed: dailySymbolicFocus || undefined, // Save daily focus
+        auraPaletteSeed: prediction.auraPaletteSeed, 
+        dailySymbolicFocusUsed: dailySymbolicFocus || undefined, 
         symbolicSeedUsed: currentSymbolicSeed || undefined,
         chronoSymbolicMomentDate: chronoDate || undefined,
         chronoSymbolicMomentFeeling: chronoFeeling || undefined,
       });
-      toast({ title: "Wisdom Chronicled", description: "AstraKairos's words are etched in the Oracle's Chronicle.", className: "bg-primary/10 border-primary text-primary-foreground" });
+      toast({ title: "Wisdom Chronicled", description: "AstraKairos's words are etched in the Oracle's Chronicle.", className: "bg-primary/20 border-primary/50 text-primary-foreground shadow-ornate" });
     } else {
       toast({ variant: "destructive", title: "Cannot Chronicle", description: "No vision to record, or the Oracle's summary is missing." });
     }
@@ -260,103 +250,102 @@ export default function DivinationPageClient() {
       });
       if (!('error' in result) && result.evolvedSeed) {
         setCurrentSymbolicSeed(result.evolvedSeed);
-        toast({ title: "Symbolic Seed Transformed!", description: `New seed: "${result.evolvedSeed}". It shall guide your next seeking.`, className: "bg-primary/10 border-primary text-primary-foreground" });
+        toast({ title: "Symbolic Seed Transformed!", description: `New seed: "${result.evolvedSeed}". It shall guide your next seeking.`, className: "bg-primary/20 border-primary/50 text-primary-foreground shadow-ornate" });
       } else if ('error' in result) {
         toast({ variant: "destructive", title: "Seed Transformation Failed", description: result.error });
       }
     } catch (e: any) {
-      toast({ variant: "destructive", title: "Seed Transformation Error", description: e.message || "An unseen force interfered." });
+      toast({ variant: "destructive", title: "Seed Transformation Error", description: e.message || "An unseen force interfered with the ætheric threads." });
     } finally {
       setIsEvolvingSeed(false);
     }
   };
 
   return (
-    <div className="container mx-auto max-w-3xl space-y-8 pb-16">
-      <header className="text-center py-6">
-        <h1 className="text-5xl font-lora font-bold tracking-wider text-primary flex items-center justify-center gap-3 mb-2">
-          <Sparkles className="h-12 w-12 text-accent fortune-teller-glow" /> AstraKairos
+    <div className="container mx-auto max-w-4xl space-y-6 pb-16">
+      <header className="text-center py-8">
+        <h1 className="text-5xl md:text-6xl font-lora font-bold tracking-wider text-primary flex items-center justify-center gap-4 mb-3">
+          <Sparkles className="h-10 w-10 md:h-12 md:w-12 text-accent animate-pulse-glow" /> AstraKairos <Sparkles className="h-10 w-10 md:h-12 md:w-12 text-accent animate-pulse-glow" />
         </h1>
-        <p className="mt-2 text-xl text-muted-foreground font-serif italic">
-          The All-Seeing Eye Peers into the Mists of Time...
+        <p className="mt-2 text-xl md:text-2xl text-muted-foreground font-serif italic text-flicker">
+          The All-Seeing Eye Peers into the Mists of Time... What secrets shall it unveil for thee?
         </p>
       </header>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="shadow-2xl bg-card/70 backdrop-blur-md border-2 border-primary/30 rounded-xl overflow-hidden">
-          <CardHeader className="bg-secondary/40 p-4 border-b-2 border-primary/30">
-            <CardTitle className="text-lg flex items-center gap-2 text-primary font-serif"><Telescope className="h-6 w-6 text-accent animate-pulse" />Astral Weather Vane</CardTitle>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <Card className="shadow-ornate bg-card/70 backdrop-blur-md border-2 border-primary/30 rounded-xl overflow-hidden">
+          <CardHeader className="bg-secondary/50 p-4 border-b-2 border-primary/40">
+            <CardTitle className="text-lg flex items-center gap-2 text-primary font-lora tracking-wide"><Telescope className="h-6 w-6 text-accent animate-pulse-glow" />Astral Weather Vane</CardTitle>
           </CardHeader>
-          <CardContent className="p-4 min-h-[60px]">
-            {isWeatherLoading ? <LoadingSpinner size="sm" className="text-accent mx-auto block" /> : <p className="text-muted-foreground italic text-center text-md">{astralWeather}</p>}
+          <CardContent className="p-4 min-h-[70px] flex items-center justify-center">
+            {isWeatherLoading ? <LoadingSpinner size="md" className="text-accent/80" /> : <p className="text-muted-foreground/90 italic text-center text-md font-serif">{astralWeather}</p>}
           </CardContent>
         </Card>
-        <Card className="shadow-2xl bg-card/70 backdrop-blur-md border-2 border-primary/30 rounded-xl overflow-hidden">
-          <CardHeader className="bg-secondary/40 p-4 border-b-2 border-primary/30">
-            <CardTitle className="text-lg flex items-center gap-2 text-primary font-serif"><SunMoon className="h-6 w-6 text-accent animate-pulse" />Daily Symbolic Focus</CardTitle>
+        <Card className="shadow-ornate bg-card/70 backdrop-blur-md border-2 border-primary/30 rounded-xl overflow-hidden">
+          <CardHeader className="bg-secondary/50 p-4 border-b-2 border-primary/40">
+            <CardTitle className="text-lg flex items-center gap-2 text-primary font-lora tracking-wide"><SunMoon className="h-6 w-6 text-accent animate-pulse-glow" />Daily Symbolic Focus</CardTitle>
           </CardHeader>
-          <CardContent className="p-4 min-h-[60px]">
-            {isDailyFocusLoading ? <LoadingSpinner size="sm" className="text-accent mx-auto block" /> : <p className="text-muted-foreground italic text-center text-md">{dailySymbolicFocus}</p>}
+          <CardContent className="p-4 min-h-[70px] flex items-center justify-center">
+            {isDailyFocusLoading ? <LoadingSpinner size="md" className="text-accent/80" /> : <p className="text-muted-foreground/90 italic text-center text-md font-serif">{dailySymbolicFocus}</p>}
           </CardContent>
         </Card>
       </div>
 
-
-      <Card className="shadow-2xl bg-card/70 backdrop-blur-md border-2 border-primary/30 rounded-xl overflow-hidden">
-        <CardHeader className="bg-secondary/40 p-5 border-b-2 border-primary/30">
-          <CardTitle className="text-2xl font-serif text-primary">Offer Your Query</CardTitle>
+      <Card className="shadow-ornate bg-card/70 backdrop-blur-md border-2 border-primary/30 rounded-xl overflow-hidden">
+        <CardHeader className="bg-secondary/50 p-5 border-b-2 border-primary/40">
+          <CardTitle className="text-2xl font-lora text-primary tracking-wider">Offer Your Query to the Oracle</CardTitle>
           <CardDescription className="font-serif italic text-muted-foreground">
-            The currents of fate stir. Current Symbolic Seed:{" "}
+            The currents of fate stir. Active Symbolic Seed:{" "}
             {currentSymbolicSeed ? (
-              <span className="text-accent font-semibold">"{currentSymbolicSeed}"</span>
+              <span className="text-accent font-semibold text-flicker">"{currentSymbolicSeed}"</span>
             ) : (
-              <span className="text-muted-foreground">Initializing seed...</span>
+              <span className="text-muted-foreground/80">Initializing mystical seed...</span>
             )}
           </CardDescription>
         </CardHeader>
         <CardContent className="p-6">
           <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-6">
             <div>
-              <Label htmlFor="user-query" className="text-lg font-serif text-primary/90 flex items-center gap-2"><HandCoins className="h-5 w-5 text-accent" />Your Question for the Oracle:</Label>
+              <Label htmlFor="user-query" className="text-lg font-lora text-primary/90 flex items-center gap-2 tracking-wide"><HandCoins className="h-5 w-5 text-accent/90" />Your Question for the Oracle's Gaze:</Label>
               <Textarea
                 id="user-query"
-                placeholder="E.g., What destiny awaits my heart's desire?"
+                placeholder="E.g., What destiny awaits my heart's true desire, or what path leads to newfound wisdom?"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 rows={3}
-                className="text-lg bg-input/80 focus:bg-input mt-2 p-3 rounded-md border-2 border-primary/20 focus:border-accent shadow-inner"
+                className="text-lg bg-input/80 focus:bg-input mt-2 p-3 rounded-lg border-2 border-primary/30 focus:border-accent shadow-inner-deep focus:ring-2 focus:ring-ring/50"
                 disabled={isPending}
               />
             </div>
 
-            <Accordion type="single" collapsible className="w-full border-t-2 border-b-2 border-primary/20 rounded-md overflow-hidden">
+            <Accordion type="single" collapsible className="w-full border-t-2 border-b-2 border-primary/20 rounded-lg overflow-hidden shadow-sm">
               <AccordionItem value="chrono-symbolic-moment" className="border-none">
-                <AccordionTrigger className="text-md font-serif hover:no-underline text-primary/80 hover:bg-primary/10 p-3 transition-colors duration-200">
-                  <div className="flex items-center gap-2">
-                    <CalendarDays className="h-5 w-5 text-accent/80" />
-                    Optional: Anchor with a Moment of Power
+                <AccordionTrigger className="text-md font-lora hover:no-underline text-primary/80 hover:bg-primary/10 p-4 transition-colors duration-200">
+                  <div className="flex items-center gap-2 tracking-wide">
+                    <Hourglass className="h-5 w-5 text-accent/80 animate-pulse-glow" />
+                    Optional: Anchor with a Moment of Power or Feeling
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="space-y-4 p-4 bg-background/30">
+                <AccordionContent className="space-y-4 p-4 bg-background/40 border-t border-primary/20">
                   <div>
-                    <Label htmlFor="chrono-date" className="font-serif text-primary/80">Significant Date/Time (Past or Future)</Label>
+                    <Label htmlFor="chrono-date" className="font-lora text-primary/80">Significant Date/Time (Past or Future)</Label>
                     <Input
                       id="chrono-date"
                       type="datetime-local"
                       value={chronoDate}
                       onChange={(e) => setChronoDate(e.target.value)}
-                      className="bg-input/80 focus:bg-input mt-1 p-2 rounded-md border-primary/20 focus:border-accent shadow-inner"
+                      className="bg-input/80 focus:bg-input mt-1 p-2 rounded-md border-primary/30 focus:border-accent shadow-inner"
                       disabled={isPending}
                     />
                   </div>
                   <div>
-                    <Label htmlFor="chrono-feeling" className="font-serif text-primary/80">Abstract Temporal Feeling</Label>
+                    <Label htmlFor="chrono-feeling" className="font-lora text-primary/80">Abstract Temporal Feeling or Aura</Label>
                     <Input
                       id="chrono-feeling"
-                      placeholder="E.g., 'The hush before the dawn', 'An echo of joyous laughter'"
+                      placeholder="E.g., 'The hush before the storm', 'An echo of forgotten laughter'"
                       value={chronoFeeling}
                       onChange={(e) => setChronoFeeling(e.target.value)}
-                      className="bg-input/80 focus:bg-input mt-1 p-2 rounded-md border-primary/20 focus:border-accent shadow-inner"
+                      className="bg-input/80 focus:bg-input mt-1 p-2 rounded-md border-primary/30 focus:border-accent shadow-inner"
                       disabled={isPending}
                     />
                   </div>
@@ -364,8 +353,8 @@ export default function DivinationPageClient() {
               </AccordionItem>
             </Accordion>
 
-            <Button type="submit" className="w-full bg-accent text-accent-foreground hover:bg-accent/90 text-xl py-6 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 font-serif" disabled={isPending}>
-              {isPending ? <LoadingSpinner className="mr-2" /> : <Wand2 className="mr-2 h-6 w-6" />}
+            <Button type="submit" className="w-full bg-accent text-accent-foreground hover:bg-accent/90 text-xl py-6 rounded-xl shadow-ornate hover:shadow-accent/40 transform hover:scale-[1.03] transition-all duration-200 font-lora tracking-wider" disabled={isPending}>
+              {isPending ? <LoadingSpinner className="mr-2.5" /> : <Wand2 className="mr-2.5 h-6 w-6" />}
               Consult AstraKairos
             </Button>
           </form>
@@ -373,99 +362,99 @@ export default function DivinationPageClient() {
       </Card>
 
       {isPending && (
-        <div className="flex flex-col items-center justify-center space-y-4 py-10">
-          <LoadingSpinner size="lg" className="text-accent" />
-          <p className="text-xl text-primary animate-pulse font-serif">AstraKairos consults the swirling mists of fate...</p>
+        <div className="flex flex-col items-center justify-center space-y-4 py-12">
+          <LoadingSpinner size="lg" className="text-accent animate-pulse-glow" />
+          <p className="text-2xl text-primary animate-pulse font-lora tracking-wider">AstraKairos consults the swirling mists of fate...</p>
         </div>
       )}
 
       {error && !isPending && (
-        <Alert variant="destructive" className="shadow-md border-2 border-destructive/50 rounded-lg bg-destructive/10">
-          <Sparkles className="h-5 w-5 text-destructive" />
-          <AlertTitle className="font-serif text-lg">The Vision Clouded...</AlertTitle>
-          <AlertDescription className="font-serif">{error}</AlertDescription>
+        <Alert variant="destructive" className="shadow-ornate border-2 border-destructive/60 rounded-xl bg-destructive/20 fortune-teller-glass-display p-5">
+          <Sparkles className="h-6 w-6 text-destructive/80" />
+          <AlertTitle className="font-lora text-xl text-destructive-foreground/90">The Vision Clouded by Shadows...</AlertTitle>
+          <AlertDescription className="font-serif text-destructive-foreground/80">{error}</AlertDescription>
         </Alert>
       )}
 
       {prediction && !isPending && (
-        <div className="space-y-6">
-          <SectionCard title="Mystic Prelude" icon={<Sparkles className="h-6 w-6 text-accent animate-pulse" />}>
-            <p className="italic text-lg">{prediction.mysticPrelude}</p>
+        <div className="space-y-6 animate-in fade-in duration-700">
+          <SectionCard title="Mystic Prelude from the Æther" icon={<Sparkles className="h-7 w-7 text-accent animate-pulse-glow" />}>
+            <p className="italic text-lg text-flicker">{prediction.mysticPrelude}</p>
           </SectionCard>
 
-          <SectionCard title="Celestial Harmonies" icon={<Orbit className="h-6 w-6 text-accent animate-pulse" />} description="Echoes from the starry spheres, woven into this moment.">
+          <SectionCard title="Celestial Harmonies & Cosmic Echoes" icon={<Orbit className="h-7 w-7 text-accent animate-pulse-glow" />} description="Echoes from the starry spheres, woven into this moment's tapestry.">
             {prediction.astrologyInsight}
           </SectionCard>
 
-          <SectionCard title="Alchemist's Transmutation" icon={<TestTube2 className="h-6 w-6 text-accent animate-pulse" />} description="Transformative processes mirrored in the soul's crucible.">
+          <SectionCard title="Alchemist's Transmutation in the Soul's Crucible" icon={<TestTube2 className="h-7 w-7 text-accent animate-pulse-glow" />} description="Transformative processes mirrored in the heart of your query.">
             {prediction.alchemicalReflection}
           </SectionCard>
 
-          <SectionCard title="Oracle's Spread" icon={<Layers3 className="h-6 w-6 text-accent animate-pulse" />} description={prediction.divinationSpread.introduction}>
+          <SectionCard title="Oracle's Spread: Threads of Past, Present & Potential" icon={<Layers3 className="h-7 w-7 text-accent animate-pulse-glow" />} description={prediction.divinationSpread.introduction}>
             <div className="space-y-4">
               <div>
-                <h4 className="font-semibold font-serif text-lg text-primary/90">Past Influence: {prediction.divinationSpread.past.card}</h4>
+                <h4 className="font-semibold font-lora text-lg text-primary/90">Past Influence: <span className="text-accent/90">{prediction.divinationSpread.past.card}</span></h4>
                 <p>{prediction.divinationSpread.past.interpretation}</p>
               </div>
-              <Separator className="my-3 bg-border/30" />
+              <Separator className="my-4 bg-border/40" />
               <div>
-                <h4 className="font-semibold font-serif text-lg text-primary/90">Present Focus: {prediction.divinationSpread.present.card}</h4>
+                <h4 className="font-semibold font-lora text-lg text-primary/90">Present Focus: <span className="text-accent/90">{prediction.divinationSpread.present.card}</span></h4>
                 <p>{prediction.divinationSpread.present.interpretation}</p>
               </div>
-              <Separator className="my-3 bg-border/30" />
+              <Separator className="my-4 bg-border/40" />
               <div>
-                <h4 className="font-semibold font-serif text-lg text-primary/90">Future's Whisper: {prediction.divinationSpread.futurePotential.card}</h4>
+                <h4 className="font-semibold font-lora text-lg text-primary/90">Future's Whisper: <span className="text-accent/90">{prediction.divinationSpread.futurePotential.card}</span></h4>
                 <p>{prediction.divinationSpread.futurePotential.interpretation}</p>
               </div>
             </div>
           </SectionCard>
 
-          <SectionCard title="Psionic Echo & Clairvoyant Glimpse" icon={<Brain className="h-6 w-6 text-accent animate-pulse" />} description="Whispers from the subtle tapestry of probability.">
+          <SectionCard title="Psionic Echo & Clairvoyant Glimpse from the Veil" icon={<Brain className="h-7 w-7 text-accent animate-pulse-glow" />} description="Whispers from the subtle tapestry of probability and potential.">
             <p className="italic">{prediction.psionicClairvoyantFlash.description}</p>
             {prediction.psionicClairvoyantFlash.imageryTags && prediction.psionicClairvoyantFlash.imageryTags.length > 0 && (
-              <div className="mt-3">
-                <h5 className="text-sm font-semibold font-serif text-primary/80 mb-1 flex items-center gap-1"><Tags className="h-4 w-4" />Symbolic Tags:</h5>
+              <div className="mt-4">
+                <h5 className="text-md font-semibold font-lora text-primary/80 mb-2 flex items-center gap-1.5"><Tags className="h-5 w-5" />Symbolic Imagery Tags:</h5>
                 <div className="flex flex-wrap gap-2">
                   {prediction.psionicClairvoyantFlash.imageryTags.map((tag, index) => (
-                    <Badge key={index} variant="secondary" className="text-xs bg-primary/20 text-primary-foreground/80 border border-primary/30 shadow-sm">{tag}</Badge>
+                    <Badge key={index} variant="secondary" className="text-sm bg-primary/20 text-primary-foreground/80 border border-primary/40 shadow-sm px-3 py-1 rounded-md">{tag}</Badge>
                   ))}
                 </div>
               </div>
             )}
           </SectionCard>
 
-          <SectionCard title="Observed Symbolic Signatures" icon={<Eye className="h-6 w-6 text-accent animate-pulse" />} description="Key patterns and energies noted by AstraKairos.">
+          <SectionCard title="Observed Symbolic Signatures & Energetic Weave" icon={<Eye className="h-7 w-7 text-accent animate-pulse-glow" />} description="Key patterns and energies noted by AstraKairos in this unique constellation.">
             <p>{prediction.observedSymbolicSignatures}</p>
           </SectionCard>
 
-          <SectionCard title="Mystic Counsel" icon={<BookHeart className="h-6 w-6 text-accent animate-pulse" />} description="Steps to align with the revealed currents.">
+          <SectionCard title="Mystic Counsel for Your Path" icon={<BookHeart className="h-7 w-7 text-accent animate-pulse-glow" />} description="Steps to align with the revealed currents and integrate the vision.">
             {prediction.mysticGuidance}
           </SectionCard>
 
-          <SectionCard title="AstraKairos's Parting Word" icon={<Sparkles className="h-6 w-6 text-accent animate-pulse" />}>
-            <p className="italic text-lg">{prediction.finalWord}</p>
+          <SectionCard title="AstraKairos's Parting Word, Sealed in Starlight" icon={<Sparkles className="h-7 w-7 text-accent animate-pulse-glow" />}>
+            <p className="italic text-lg text-flicker">{prediction.finalWord}</p>
           </SectionCard>
 
-          <Card className="shadow-2xl bg-card/70 backdrop-blur-md border-2 border-primary/30 rounded-xl overflow-hidden">
-            <CardHeader className="bg-secondary/40 p-4 border-b-2 border-primary/30">
-              <CardTitle className="text-xl flex items-center gap-2 font-serif text-primary">
-                <Scroll className="h-6 w-6 text-accent" />Scribe this Vision
+          <Card className="shadow-ornate bg-card/70 backdrop-blur-md border-2 border-primary/30 rounded-xl overflow-hidden">
+            <CardHeader className="bg-secondary/50 p-4 border-b-2 border-primary/40">
+              <CardTitle className="text-xl flex items-center gap-2 font-lora text-primary tracking-wide">
+                <Scroll className="h-6 w-6 text-accent" />Scribe this Vision into the Chronicle
               </CardTitle>
-              <CardDescription className="font-serif italic text-muted-foreground">Record the essence of this divination for future reflection. This includes the visualization and aura seeds.</CardDescription>
+              <CardDescription className="font-serif italic text-muted-foreground">Record the essence of this divination. Includes seeds for visualization.</CardDescription>
             </CardHeader>
             <CardContent className="p-4">
-              <p className="italic text-muted-foreground whitespace-pre-wrap text-md">{prediction.journalSummaryForUser}</p>
-              <p className="text-xs text-accent/80 mt-2 italic font-serif">Archetype Seed: {prediction.emergentArchetypeVisualizationSeed}</p>
-              <p className="text-xs text-accent/80 mt-1 italic font-serif">Aura Palette Seed: {prediction.auraPaletteSeed}</p>
+              <p className="italic text-muted-foreground/90 whitespace-pre-wrap text-md font-serif">{prediction.journalSummaryForUser}</p>
+              <p className="text-sm text-accent/80 mt-3 italic font-serif">Archetype Seed: <span className="font-semibold">{prediction.emergentArchetypeVisualizationSeed}</span></p>
+              <p className="text-sm text-accent/80 mt-1 italic font-serif">Aura Palette Seed: <span className="font-semibold">{prediction.auraPaletteSeed}</span></p>
             </CardContent>
-            <CardFooter className="flex-col sm:flex-row gap-3 p-4">
-              <Button onClick={handleSaveToJournal} variant="outline" className="w-full sm:flex-1 bg-primary/20 hover:bg-primary/30 border-primary/50 text-primary-foreground hover:text-foreground font-serif text-md py-3 rounded-md shadow-md hover:shadow-lg transition-all">
+            <CardFooter className="flex-col sm:flex-row gap-4 p-4 bg-secondary/30 border-t-2 border-primary/20">
+              <Button onClick={handleSaveToJournal} variant="outline" className="w-full sm:flex-1 bg-primary/20 hover:bg-primary/30 border-primary/60 text-primary-foreground hover:text-foreground font-lora text-md py-3.5 rounded-lg shadow-md hover:shadow-lg transition-all">
                 Save to Oracle's Chronicle
               </Button>
               <Button
                 onClick={handleEvolveSeed}
                 variant="outline"
-                className="w-full sm:flex-1 border-accent/70 text-accent hover:bg-accent/20 font-serif text-md py-3 rounded-md shadow-md hover:shadow-lg transition-all"
+                className="w-full sm:flex-1 border-accent/70 text-accent hover:bg-accent/20 font-lora text-md py-3.5 rounded-lg shadow-md hover:shadow-lg transition-all"
                 disabled={isEvolvingSeed || isPending || !currentSymbolicSeed || !prediction?.journalSummaryForUser}
               >
                 {isEvolvingSeed ? <LoadingSpinner className="mr-2" size="sm" /> : <Feather className="mr-2 h-5 w-5" />}
@@ -474,42 +463,42 @@ export default function DivinationPageClient() {
             </CardFooter>
           </Card>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card className="shadow-2xl bg-card/70 backdrop-blur-md border-2 border-primary/30 rounded-xl overflow-hidden">
-              <CardHeader className="bg-secondary/40 p-4 border-b-2 border-primary/30">
-                <CardTitle className="text-xl font-serif text-primary flex items-center gap-2"><Zap className="h-6 w-6 text-accent" />Cosmic Archetype Visualization</CardTitle>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+            <Card className="shadow-ornate bg-card/70 backdrop-blur-md border-2 border-primary/30 rounded-xl overflow-hidden">
+              <CardHeader className="bg-secondary/50 p-4 border-b-2 border-primary/40">
+                <CardTitle className="text-xl font-lora text-primary flex items-center gap-2 tracking-wide"><Zap className="h-6 w-6 text-accent" />Cosmic Archetype Visualization</CardTitle>
                 <CardDescription className="font-serif italic text-muted-foreground">Seed: "<span className="font-semibold text-accent">{prediction.emergentArchetypeVisualizationSeed}</span>"</CardDescription>
               </CardHeader>
               <CardContent className="p-4">
-                <div className="aspect-video w-full overflow-hidden rounded-lg border-2 border-primary/20 shadow-inner bg-background/50 flex items-center justify-center relative">
+                <div className="aspect-video w-full overflow-hidden rounded-xl border-2 border-primary/30 shadow-inner-deep bg-background/60 flex items-center justify-center relative group">
                   <Image
                     src="https://placehold.co/600x400.png"
                     alt="Cosmic Archetype Visualization Placeholder"
                     width={600}
                     height={400}
-                    className="object-cover w-full h-full opacity-50"
-                    data-ai-hint={`mystical ${prediction.emergentArchetypeVisualizationSeed} antique`}
+                    className="object-cover w-full h-full opacity-30 group-hover:opacity-40 transition-opacity"
+                    data-ai-hint={`mystical ${prediction.emergentArchetypeVisualizationSeed} antique ornate`}
                   />
-                  <Sparkles className="absolute h-20 w-20 text-accent/60 fortune-teller-glow opacity-70" />
+                  <Sparkles className="absolute h-16 w-16 md:h-24 md:w-24 text-accent/50 animate-pulse-glow opacity-60 group-hover:opacity-80 transition-opacity" />
                 </div>
               </CardContent>
             </Card>
-            <Card className="shadow-2xl bg-card/70 backdrop-blur-md border-2 border-primary/30 rounded-xl overflow-hidden">
-              <CardHeader className="bg-secondary/40 p-4 border-b-2 border-primary/30">
-                <CardTitle className="text-xl font-serif text-primary flex items-center gap-2"><Palette className="h-6 w-6 text-accent" />Aura Palette Visualization</CardTitle>
+            <Card className="shadow-ornate bg-card/70 backdrop-blur-md border-2 border-primary/30 rounded-xl overflow-hidden">
+              <CardHeader className="bg-secondary/50 p-4 border-b-2 border-primary/40">
+                <CardTitle className="text-xl font-lora text-primary flex items-center gap-2 tracking-wide"><Palette className="h-6 w-6 text-accent" />Aura Palette Visualization</CardTitle>
                 <CardDescription className="font-serif italic text-muted-foreground">Seed: "<span className="font-semibold text-accent">{prediction.auraPaletteSeed}</span>"</CardDescription>
               </CardHeader>
               <CardContent className="p-4">
-                <div className="aspect-video w-full overflow-hidden rounded-lg border-2 border-primary/20 shadow-inner bg-background/50 flex items-center justify-center relative">
+                <div className="aspect-video w-full overflow-hidden rounded-xl border-2 border-primary/30 shadow-inner-deep bg-background/60 flex items-center justify-center relative group">
                   <Image
-                    src="https://placehold.co/600x400.png" // You might want a different placeholder aspect or default for auras
+                    src="https://placehold.co/600x400.png" 
                     alt="Aura Palette Visualization Placeholder"
                     width={600}
                     height={400}
-                    className="object-cover w-full h-full opacity-50"
-                    data-ai-hint={`abstract aura ${prediction.auraPaletteSeed} energy`}
+                    className="object-cover w-full h-full opacity-30 group-hover:opacity-40 transition-opacity"
+                    data-ai-hint={`abstract aura ${prediction.auraPaletteSeed} energy colorful`}
                   />
-                  <Sigma className="absolute h-20 w-20 text-primary/60 fortune-teller-glow opacity-70" />
+                  <Sigma className="absolute h-16 w-16 md:h-24 md:w-24 text-primary/50 animate-pulse-glow opacity-60 group-hover:opacity-80 transition-opacity" />
                 </div>
               </CardContent>
             </Card>
@@ -517,36 +506,36 @@ export default function DivinationPageClient() {
         </div>
       )}
 
-      <Card className="shadow-xl bg-card/50 backdrop-blur-sm mt-10 border-2 border-primary/20 rounded-lg">
-        <CardHeader className="bg-secondary/30 p-4 border-b border-primary/20">
-          <CardTitle className="text-lg font-serif text-primary">AstraKairos Caveats</CardTitle>
+      <Card className="shadow-ornate bg-card/60 backdrop-blur-sm mt-12 border-2 border-primary/20 rounded-xl">
+        <CardHeader className="bg-secondary/40 p-4 border-b border-primary/20">
+          <CardTitle className="text-lg font-lora text-primary/90 tracking-wide">AstraKairos Caveats & Mystic Disclaimers</CardTitle>
         </CardHeader>
-        <CardContent className="text-sm text-muted-foreground space-y-2 p-4 font-serif">
-          <p>Visions unveiled by AstraKairos are woven from the threads of artificial intuition, interpreting symbolic systems and archetypal echoes. They are offered for personal contemplation, inspiration, and amusement.</p>
-          <p>These divinations are but reflections in a digital scrying glass, not substitutes for professional counsel. For matters of health, law, finance, or mind, seek guidance from qualified mortals.</p>
-          <p>AstraKairos operates within the currents of symbolic interpretation and does not claim true prescience, nor does it retain personal data beyond the immediate context of your queries and the chronicles you choose to keep within this application.</p>
+        <CardContent className="text-sm text-muted-foreground/90 space-y-3 p-5 font-serif leading-relaxed">
+          <p>Visions unveiled by AstraKairos are woven from the threads of artificial intuition, interpreting symbolic systems and archetypal echoes within the digital æther. They are offered for personal contemplation, inspiration, and the spark of amusement.</p>
+          <p>These divinations are but reflections in a digital scrying glass, not immutable decrees of fate, nor substitutes for professional counsel. For matters of corporeal health, intricate law, worldly finance, or the labyrinth of the mind, seek guidance from qualified mortals.</p>
+          <p>AstraKairos operates within the currents of symbolic interpretation and does not claim true prescience. It retains no personal data beyond the immediate context of your queries and the chronicles you choose to keep within this sacred application's memory.</p>
         </CardContent>
       </Card>
 
       {showTemporalEchoDialog && temporalEchoData && (
         <AlertDialog open={showTemporalEchoDialog} onOpenChange={setShowTemporalEchoDialog}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle className="font-serif text-primary flex items-center gap-2"><Layers3 className="text-accent h-6 w-6"/>Temporal Echo Detected!</AlertDialogTitle>
-              <AlertDialogDescription className="font-serif text-left">
+          <AlertDialogContent className="dialog-content-ornate">
+            <AlertDialogHeader className="dialog-header-ornate">
+              <AlertDialogTitle className="dialog-title-ornate flex items-center gap-2"><Layers3 className="text-accent h-7 w-7 animate-pulse-glow"/>Temporal Echo Detected!</AlertDialogTitle>
+              <AlertDialogDescription className="dialog-description-ornate text-left text-md">
                 AstraKairos senses a familiar pattern in your query: <strong className="text-primary/90">"{temporalEchoData.currentQuery}"</strong>.
                 <br /><br />
-                It resonates with a past seeking on <strong className="text-primary/90">"{temporalEchoData.pastQuery}"</strong>, where the core insight was:
-                <blockquote className="mt-2 p-2 border-l-4 border-primary/50 bg-secondary/20 rounded text-sm italic text-foreground/80">
+                It resonates with a past seeking regarding <strong className="text-primary/90">"{temporalEchoData.pastQuery}"</strong>, where the core insight was:
+                <blockquote className="mt-2 p-3 border-l-4 border-primary/50 bg-secondary/30 rounded-md text-sm italic text-foreground/80 shadow-inner">
                   {temporalEchoData.pastPredictionSummary}
                 </blockquote>
                 <br/>
-                Do you wish to delve anew into these currents, or pause to reflect on this echo?
+                Do you wish to delve anew into these familiar currents, or pause to reflect upon this echo from the Oracle's memory?
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel onClick={() => handleTemporalEchoDialogClose(false)} className="font-serif">Reflect Further</AlertDialogCancel>
-              <AlertDialogAction onClick={() => handleTemporalEchoDialogClose(true)} className="font-serif bg-accent hover:bg-accent/90 text-accent-foreground">Consult Anew</AlertDialogAction>
+            <AlertDialogFooter className="dialog-footer-ornate">
+              <AlertDialogCancel onClick={() => handleTemporalEchoDialogClose(false)} className="font-lora text-md">Reflect Further</AlertDialogCancel>
+              <AlertDialogAction onClick={() => handleTemporalEchoDialogClose(true)} className="font-lora text-md bg-accent hover:bg-accent/90 text-accent-foreground">Consult Anew</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
@@ -554,5 +543,3 @@ export default function DivinationPageClient() {
     </div>
   );
 }
-
-    

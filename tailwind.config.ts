@@ -11,8 +11,8 @@ export default {
   theme: {
   	extend: {
       fontFamily: {
-        sans: ["var(--font-lora)", ...defaultFontFamily.sans], // Lora as default sans
-        lora: ["var(--font-lora)"], // Explicitly define lora
+        sans: ["var(--font-lora)", ...defaultFontFamily.sans], 
+        lora: ["var(--font-lora)"], 
         mono: ["var(--font-geist-mono)", ...defaultFontFamily.mono],
       },
   		colors: {
@@ -71,8 +71,8 @@ export default {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)',
-        xl: 'calc(var(--radius) + 4px)', // Added for more rounded elements
-        '2xl': 'calc(var(--radius) + 8px)',
+        xl: 'calc(var(--radius) + 6px)', 
+        '2xl': 'calc(var(--radius) + 12px)',
   		},
   		keyframes: {
   			'accordion-down': {
@@ -91,20 +91,35 @@ export default {
   					height: '0'
   				}
   			},
-        'pulse-slow': { // Custom slow pulse for subtle glow
-          '0%, 100%': { opacity: '1', transform: 'scale(1)' },
-          '50%': { opacity: '0.7', transform: 'scale(1.05)' },
+        'pulse-glow': { // For the "fortune-teller-glow"
+          '0%, 100%': { 
+            opacity: '1', 
+            filter: 'drop-shadow(0 0 3px hsl(var(--primary)/0.6)) drop-shadow(0 0 6px hsl(var(--primary)/0.4))'
+          },
+          '50%': { 
+            opacity: '0.8', 
+            filter: 'drop-shadow(0 0 6px hsl(var(--primary)/0.8)) drop-shadow(0 0 12px hsl(var(--primary)/0.6))'
+          },
         },
-        'spin-slow': { // Custom slow spin
+        'spin-slow': { 
           'to': { transform: 'rotate(360deg)' },
+        },
+        'subtle-flicker': {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.95' },
         }
   		},
   		animation: {
-  			'accordion-down': 'accordion-down 0.3s ease-out', // Slightly slower accordion
+  			'accordion-down': 'accordion-down 0.3s ease-out', 
   			'accordion-up': 'accordion-up 0.3s ease-out',
-        'pulse-glow': 'pulse-slow 3s infinite ease-in-out', // Using custom pulse
-        'spin-slow': 'spin-slow 10s linear infinite', // Custom slow spin
-  		}
+        'pulse-glow': 'pulse-glow 2.5s infinite ease-in-out',
+        'spin-slow': 'spin-slow 10s linear infinite',
+        'subtle-flicker': 'subtle-flicker 1.5s infinite ease-in-out',
+  		},
+      boxShadow: {
+        'inner-deep': 'inset 0 4px 8px 0 rgba(0, 0, 0, 0.25)',
+        'ornate': '0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.12), inset 0 0 0 1px hsl(var(--border))',
+      }
   	}
   },
   plugins: [require("tailwindcss-animate")],

@@ -9,7 +9,7 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "rounded-lg border-2 border-primary/20 bg-card text-card-foreground shadow-xl backdrop-filter backdrop-blur-sm bg-opacity-70", // Enhanced thematic styling
+      "rounded-xl border-2 border-primary/25 bg-card text-card-foreground shadow-ornate backdrop-filter backdrop-blur-sm bg-opacity-75 transition-all duration-300 ease-out hover:shadow-primary/20", // Enhanced thematic styling
       className
     )}
     {...props}
@@ -23,20 +23,20 @@ const CardHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("flex flex-col space-y-1.5 p-5 border-b-2 border-primary/10 bg-secondary/30", className)} // Thematic header
+    className={cn("flex flex-col space-y-1.5 p-5 border-b-2 border-primary/20 bg-secondary/40", className)} // Thematic header
     {...props}
   />
 ))
 CardHeader.displayName = "CardHeader"
 
 const CardTitle = React.forwardRef<
-  HTMLDivElement, // Changed from HTMLParagraphElement to HTMLDivElement
-  React.HTMLAttributes<HTMLDivElement> // Changed from HTMLHeadingElement to HTMLDivElement
+  HTMLDivElement, 
+  React.HTMLAttributes<HTMLDivElement> 
 >(({ className, ...props }, ref) => (
-  <div // Changed from h3 to div to allow more flexible content (e.g. flex items)
+  <div 
     ref={ref}
     className={cn(
-      "text-2xl font-lora font-semibold leading-none tracking-tight text-primary", // Thematic title
+      "text-2xl font-lora font-semibold leading-tight tracking-wide text-primary", // Thematic title, adjusted leading
       className
     )}
     {...props}
@@ -45,12 +45,12 @@ const CardTitle = React.forwardRef<
 CardTitle.displayName = "CardTitle"
 
 const CardDescription = React.forwardRef<
-  HTMLDivElement, // Changed from HTMLParagraphElement to HTMLDivElement
-  React.HTMLAttributes<HTMLDivElement> // Changed from HTMLParagraphElement to HTMLDivElement
+  HTMLDivElement, 
+  React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <div // Changed from p to div
+  <div 
     ref={ref}
-    className={cn("text-sm text-muted-foreground font-serif italic", className)} // Thematic description
+    className={cn("text-sm text-muted-foreground font-serif italic pt-1", className)} // Thematic description, added pt-1
     {...props}
   />
 ))
@@ -60,7 +60,7 @@ const CardContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("p-6 pt-4 text-foreground/90", className)} {...props} /> // Adjusted padding
+  <div ref={ref} className={cn("p-6 text-foreground/90", className)} {...props} /> // Maintained padding
 ))
 CardContent.displayName = "CardContent"
 
@@ -70,7 +70,7 @@ const CardFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("flex items-center p-4 pt-0 border-t-2 border-primary/10 bg-secondary/20", className)} // Thematic footer
+    className={cn("flex items-center p-5 border-t-2 border-primary/20 bg-secondary/30", className)} // Thematic footer
     {...props}
   />
 ))

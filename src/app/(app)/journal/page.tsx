@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { ScrollText, Lightbulb, Link2, Trash2, BookOpenCheck, Sparkles, BookMarked, Milestone, Symmetry } from "lucide-react"; // Added Milestone, Symmetry
+import { ScrollText, Lightbulb, Link2, Trash2, BookOpenCheck, Sparkles, BookMarked, Milestone, Symmetry, FileText, Wand } from "lucide-react";
 import { LoadingSpinner } from '@/components/common/loading-spinner';
 import { format } from 'date-fns';
 import { handleSummarizePredictionsAction, handleLinkKarmicEchoesAction, handleAnalyzeSymbolicPolarityAction } from './actions';
@@ -35,15 +35,14 @@ export default function JournalPageClient() {
   const [isAnalyzingPolarity, startPolarityTransition] = useTransition();
   const [showPolarityDialog, setShowPolarityDialog] = useState(false);
 
-
   useEffect(() => {
     setJournalEntries(getPredictions());
   }, [predictions, getPredictions]);
 
   const handleSummarize = () => {
     if (journalEntries.length === 0) {
-      setError("The Chronicle is bare. Seek AstraKairos's wisdom first!");
-      toast({ variant: "default", title: "Chronicle Empty", description: "Add divinations before seeking patterns.", className: "bg-secondary/70 border-secondary text-secondary-foreground" });
+      setError("The Chronicle is bare. Seek AstraKairos's wisdom first, brave soul!");
+      toast({ variant: "default", title: "Chronicle Empty", description: "Add divinations before seeking patterns woven in time.", className: "bg-secondary/70 border-secondary text-secondary-foreground shadow-ornate" });
       return;
     }
     setError(null);
@@ -53,16 +52,17 @@ export default function JournalPageClient() {
 
     const predictionsText = journalEntries
       .map(p => `Date: ${format(new Date(p.date), 'PPP')}\nQuery: ${p.query}\nPrediction: ${p.prediction}`)
+      .slice(0,15) // Use more entries for summary
       .join('\n\n---\n\n');
 
     startSummaryTransition(async () => {
-      const result = await handleSummarizePredictionsAction({ predictions: predictionsText });
+      const result = await handleSummarizePredictionsAction({ predictions: `Echoes from the Oracle's Chronicle:\n${predictionsText}` });
       if ('error' in result) {
         setError(result.error);
         toast({ variant: "destructive", title: "Pattern Obscured", description: result.error });
       } else {
         setArchetypalSummary(result.archetypalSummary);
-        toast({ title: "Path Illuminated", description: "AstraKairos has distilled the essence of your chronicles.", className: "bg-primary/10 border-primary text-primary-foreground" });
+        toast({ title: "Path Illuminated", description: "AstraKairos has distilled the essence of your chronicles.", className: "bg-primary/20 border-primary/50 text-primary-foreground shadow-ornate" });
       }
     });
   };
@@ -74,7 +74,7 @@ export default function JournalPageClient() {
     setPolarityAnalysisResult(null);
     setSelectedEntryIds([]);
     setError(null);
-    toast({ title: "Chronicle Wiped Clean", description: "The Oracle's slate is cleared.", className: "bg-destructive/10 border-destructive text-destructive-foreground" });
+    toast({ title: "Chronicle Wiped Clean", description: "The Oracle's slate is cleared, awaiting new prophecies.", className: "bg-destructive/20 border-destructive/50 text-destructive-foreground shadow-ornate" });
   };
 
   const handleToggleSelection = (entryId: string) => {
@@ -85,13 +85,14 @@ export default function JournalPageClient() {
       if (prev.length < 2) {
         return [...prev, entryId];
       }
-      return [prev[1], entryId]; // Keep last selected and add new, effectively a rolling 2
+      // If 2 are already selected, deselect the first one and add the new one.
+      return [prev[1], entryId]; 
     });
   };
 
   const handleLinkEchoes = () => {
     if (selectedEntryIds.length !== 2) {
-      toast({ variant: "destructive", title: "Selection Incomplete", description: "Choose two chronicles to weave their threads." });
+      toast({ variant: "destructive", title: "Selection Incomplete", description: "Choose precisely two chronicles to weave their threads of fate." });
       return;
     }
     setError(null);
@@ -103,7 +104,7 @@ export default function JournalPageClient() {
     const entry2 = journalEntries.find(e => e.id === selectedEntryIds[1]);
 
     if (!entry1 || !entry2) {
-      toast({ variant: "destructive", title: "Chronicle Lost", description: "Selected entries not found in the mists." });
+      toast({ variant: "destructive", title: "Chronicle Lost in Time", description: "Selected entries not found in the mists of memory." });
       return;
     }
 
@@ -120,7 +121,7 @@ export default function JournalPageClient() {
         toast({ variant: "destructive", title: "Echoes Unclear", description: result.error });
       } else {
         setKarmicLinkAnalysis(result.karmicLinkAnalysis);
-        toast({ title: "Karmic Threads Revealed", description: "AstraKairos unveils the connections.", className: "bg-primary/10 border-primary text-primary-foreground" });
+        toast({ title: "Karmic Threads Revealed", description: "AstraKairos unveils the connections woven between time.", className: "bg-primary/20 border-primary/50 text-primary-foreground shadow-ornate" });
       }
     });
   };
@@ -144,77 +145,76 @@ export default function JournalPageClient() {
       } else {
         setPolarityAnalysisResult({ ...result, entryQuery: entry.query });
         setShowPolarityDialog(true);
-        toast({ title: "Symbolic Polarity Revealed", description: "AstraKairos offers a counterpoint.", className: "bg-primary/10 border-primary text-primary-foreground" });
+        toast({ title: "Symbolic Polarity Revealed", description: "AstraKairos offers a counterpoint to the vision.", className: "bg-primary/20 border-primary/50 text-primary-foreground shadow-ornate" });
       }
     });
   };
 
-
   return (
-    <div className="container mx-auto max-w-4xl space-y-8 pb-16">
-      <header className="text-center py-6">
-        <h1 className="text-5xl font-lora font-bold tracking-wider text-primary flex items-center justify-center gap-3 mb-2">
-          <BookMarked className="h-12 w-12 text-accent fortune-teller-glow" /> Oracle's Chronicle
+    <div className="container mx-auto max-w-5xl space-y-8 pb-16"> {/* Increased max-width */}
+      <header className="text-center py-8">
+        <h1 className="text-5xl md:text-6xl font-lora font-bold tracking-wider text-primary flex items-center justify-center gap-4 mb-3">
+          <BookMarked className="h-10 w-10 md:h-12 md:w-12 text-accent animate-pulse-glow" /> Oracle's Chronicle <BookMarked className="h-10 w-10 md:h-12 md:w-12 text-accent animate-pulse-glow" />
         </h1>
-        <p className="mt-2 text-xl text-muted-foreground font-serif italic">
-          Reflect upon past visions. AstraKairos may illuminate overarching patterns or link fateful echoes.
+        <p className="mt-2 text-xl md:text-2xl text-muted-foreground font-serif italic text-flicker">
+          Reflect upon past visions. AstraKairos may illuminate overarching patterns or link fateful echoes from the mists of time.
         </p>
       </header>
 
-      <Card className="shadow-2xl bg-card/70 backdrop-blur-md border-2 border-primary/30 rounded-xl overflow-hidden">
-        <CardHeader className="bg-secondary/40 p-5 border-b-2 border-primary/30">
-          <CardTitle className="text-2xl flex items-center gap-2 font-serif text-primary"><Sparkles className="text-accent h-7 w-7 animate-pulse" />AstraKairos's Reflections</CardTitle>
-          <CardDescription className="font-serif italic text-muted-foreground">Distill recurring motifs, link karmic threads between two visions, or analyze a single vision's polarity.</CardDescription>
+      <Card className="shadow-ornate bg-card/70 backdrop-blur-md border-2 border-primary/30 rounded-xl overflow-hidden">
+        <CardHeader className="bg-secondary/50 p-5 border-b-2 border-primary/40">
+          <CardTitle className="text-2xl flex items-center gap-2.5 font-lora text-primary tracking-wider"><Wand className="text-accent h-7 w-7 animate-pulse-glow" />AstraKairos's Reflections on the Weave</CardTitle>
+          <CardDescription className="font-serif italic text-muted-foreground">Distill recurring motifs, link karmic threads between two visions, or analyze a single vision's symbolic polarity.</CardDescription>
         </CardHeader>
-        <CardContent className="p-6 min-h-[150px]">
-          {(isSummarizing || isLinking || isAnalyzingPolarity) && <div className="flex justify-center py-4"><LoadingSpinner className="text-accent" /></div>}
+        <CardContent className="p-6 min-h-[180px]">
+          {(isSummarizing || isLinking || isAnalyzingPolarity) && <div className="flex justify-center items-center py-6 h-full"><LoadingSpinner size="lg" className="text-accent animate-pulse-glow" /></div>}
 
           {archetypalSummary && !isSummarizing && !isLinking && !isAnalyzingPolarity && (
-            <div className="p-4 my-4 border-2 border-dashed border-accent/70 rounded-lg bg-accent/10 shadow-inner">
-              <h3 className="text-lg font-semibold text-accent mb-2 font-serif">Archetypal Path Illumination:</h3>
-              <p className="text-base leading-relaxed whitespace-pre-wrap text-foreground/90">{archetypalSummary}</p>
+            <div className="p-5 my-4 border-2 border-dashed border-accent/70 rounded-lg bg-accent/10 shadow-inner-deep animate-in fade-in duration-500">
+              <h3 className="text-xl font-semibold text-accent mb-3 font-lora tracking-wide flex items-center gap-2"><Lightbulb className="h-6 w-6"/>Archetypal Path Illumination:</h3>
+              <p className="text-base leading-relaxed whitespace-pre-wrap text-foreground/90 font-serif">{archetypalSummary}</p>
             </div>
           )}
 
           {karmicLinkAnalysis && !isLinking && !isSummarizing && !isAnalyzingPolarity && (
-            <div className="p-4 my-4 border-2 border-dashed border-primary/70 rounded-lg bg-primary/10 shadow-inner">
-              <h3 className="text-lg font-semibold text-primary mb-2 font-serif">Karmic Thread Analysis:</h3>
-              <p className="text-base leading-relaxed whitespace-pre-wrap text-foreground/90">{karmicLinkAnalysis}</p>
-              <p className="text-xs text-muted-foreground mt-3 font-serif">Analysis based on entries from: {selectedEntryIds.map(id => format(new Date(journalEntries.find(e => e.id === id)?.date || Date.now()), 'MMMM d, yyyy')).join(' & ')}</p>
+            <div className="p-5 my-4 border-2 border-dashed border-primary/70 rounded-lg bg-primary/10 shadow-inner-deep animate-in fade-in duration-500">
+              <h3 className="text-xl font-semibold text-primary mb-3 font-lora tracking-wide flex items-center gap-2"><Link2 className="h-6 w-6"/>Karmic Thread Analysis:</h3>
+              <p className="text-base leading-relaxed whitespace-pre-wrap text-foreground/90 font-serif">{karmicLinkAnalysis}</p>
+              <p className="text-xs text-muted-foreground mt-4 font-serif">Analysis based on entries from: {selectedEntryIds.map(id => format(new Date(journalEntries.find(e => e.id === id)?.date || Date.now()), 'MMMM d, yyyy')).join(' & ')}</p>
             </div>
           )}
 
           {error && !isSummarizing && !isLinking && !isAnalyzingPolarity &&(
-            <Alert variant="destructive" className="shadow-md mt-4">
-              <Sparkles className="h-4 w-4" />
-              <AlertTitle className="font-serif">Reflection Error</AlertTitle>
+            <Alert variant="destructive" className="shadow-ornate mt-4">
+              <Sparkles className="h-5 w-5" />
+              <AlertTitle className="font-lora text-lg">Reflection Error by the Oracle</AlertTitle>
               <AlertDescription className="font-serif">{error}</AlertDescription>
             </Alert>
           )}
           {!archetypalSummary && !karmicLinkAnalysis && !polarityAnalysisResult && !isSummarizing && !isLinking && !isAnalyzingPolarity && journalEntries.length > 0 && (
-            <p className="text-center text-muted-foreground py-4 font-serif italic">
-              Invoke AstraKairos to summarize your path, link echoes, or analyze polarity.
+            <p className="text-center text-muted-foreground/80 py-6 font-serif italic text-lg">
+              Invoke AstraKairos to summarize your path, link echoes between visions, or analyze a singular prophecy's polarity.
             </p>
           )}
           {!archetypalSummary && !karmicLinkAnalysis && !polarityAnalysisResult && !isSummarizing && !isLinking && !isAnalyzingPolarity && journalEntries.length === 0 && (
-            <p className="text-center text-muted-foreground py-4 font-serif italic">
-              The Oracle's Chronicle is empty. Seek a vision to begin.
+            <p className="text-center text-muted-foreground/80 py-6 font-serif italic text-lg">
+              The Oracle's Chronicle is empty. Seek a vision from AstraKairos to begin your journey through time.
             </p>
           )}
         </CardContent>
-        <CardFooter className="flex flex-col sm:flex-row justify-between items-center gap-3 p-4 border-t-2 border-primary/20 bg-secondary/20 flex-wrap">
+        <CardFooter className="flex flex-col sm:flex-row justify-between items-center gap-3 p-5 border-t-2 border-primary/30 bg-secondary/30 flex-wrap">
           <Button
             onClick={handleSummarize}
             disabled={isSummarizing || isLinking || isAnalyzingPolarity || journalEntries.length === 0}
-            className="w-full sm:flex-1 md:w-auto bg-accent text-accent-foreground hover:bg-accent/90 font-serif text-md py-3 rounded-md shadow-md hover:shadow-lg transition-all"
+            className="w-full sm:flex-1 md:w-auto bg-accent text-accent-foreground hover:bg-accent/90 font-lora text-md py-3.5 rounded-lg shadow-md hover:shadow-lg transition-all"
           >
-            {isSummarizing ? <LoadingSpinner className="mr-2" /> : <Lightbulb className="mr-2 h-5 w-5" />}
+            {isSummarizing ? <LoadingSpinner className="mr-2" /> : <FileText className="mr-2 h-5 w-5" />}
             Summarize Archetypal Path
           </Button>
           <Button
             onClick={handleLinkEchoes}
             disabled={isLinking || isSummarizing || isAnalyzingPolarity || selectedEntryIds.length !== 2}
-            className="w-full sm:flex-1 md:w-auto border-primary/70 text-primary hover:bg-primary/20 font-serif text-md py-3 rounded-md shadow-md hover:shadow-lg transition-all"
+            className="w-full sm:flex-1 md:w-auto border-primary/70 text-primary hover:bg-primary/20 font-lora text-md py-3.5 rounded-lg shadow-md hover:shadow-lg transition-all"
             variant="outline"
           >
             {isLinking ? <LoadingSpinner className="mr-2" /> : <Link2 className="mr-2 h-5 w-5" />}
@@ -224,65 +224,68 @@ export default function JournalPageClient() {
             onClick={handleClearJournal}
             variant="destructive"
             disabled={isSummarizing || isLinking || isAnalyzingPolarity || journalEntries.length === 0}
-            className="w-full sm:flex-1 md:w-auto font-serif text-md py-3 rounded-md shadow-md hover:shadow-lg transition-all"
+            className="w-full sm:flex-1 md:w-auto font-lora text-md py-3.5 rounded-lg shadow-md hover:shadow-lg transition-all"
           >
             <Trash2 className="mr-2 h-5 w-5" /> Clear Chronicle
           </Button>
         </CardFooter>
       </Card>
 
-      <div className="space-y-6 mt-10">
-        <h2 className="text-3xl font-lora font-semibold text-center text-primary">Past Visions</h2>
+      <div className="space-y-8 mt-12">
+        <h2 className="text-4xl font-lora font-semibold text-center text-primary tracking-wider">Scrolls of Past Visions</h2>
         {journalEntries.length === 0 ? (
-          <p className="text-center text-muted-foreground text-lg py-8 font-serif italic">
-            The pages of your Chronicle are currently blank.
-            <br />
-            Seek AstraKairos's counsel to begin your journey.
-          </p>
+          <Card className="shadow-ornate bg-card/70 backdrop-blur-md border-2 border-primary/30 rounded-xl overflow-hidden p-8">
+            <p className="text-center text-muted-foreground text-xl py-10 font-serif italic">
+              The pages of your Chronicle are currently blank, echoing with silence.
+              <br />
+              Seek AstraKairos's counsel to begin etching your journey into its mystical records.
+            </p>
+          </Card>
         ) : (
           <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
             {journalEntries.map((entry) => (
-              <Card key={entry.id} className={cn("shadow-lg bg-card/80 backdrop-blur-xs hover:shadow-primary/30 transition-shadow duration-300 border-2 border-primary/20 rounded-lg overflow-hidden flex flex-col", selectedEntryIds.includes(entry.id) ? 'ring-2 ring-offset-2 ring-offset-background ring-accent shadow-accent/30' : 'hover:border-primary/40')}>
-                <CardHeader className="bg-secondary/30 p-4 border-b border-primary/20">
+              <Card key={entry.id} className={cn("shadow-ornate bg-card/80 backdrop-blur-sm hover:shadow-primary/40 transition-all duration-300 border-2 border-primary/20 rounded-xl overflow-hidden flex flex-col", selectedEntryIds.includes(entry.id) ? 'ring-2 ring-offset-background ring-offset-2 ring-accent shadow-accent/40' : 'hover:border-primary/50')}>
+                <CardHeader className="bg-secondary/40 p-4 border-b-2 border-primary/30">
                   <div className="flex justify-between items-start">
                     <div>
-                      <CardTitle className="flex items-center gap-2 text-xl font-serif text-primary"><ScrollText className="text-accent h-6 w-6" />Query Made</CardTitle>
+                      <CardTitle className="flex items-center gap-2 text-xl font-lora text-primary tracking-wide"><ScrollText className="text-accent h-6 w-6 animate-pulse-glow" />Query Scribed</CardTitle>
                       <CardDescription className="text-sm italic text-muted-foreground font-serif">
                         Asked on {format(new Date(entry.date), 'MMMM d, yyyy \'at\' h:mm a')}
                       </CardDescription>
                     </div>
                     <div className="flex items-center space-x-2 pt-1">
-                      <Label htmlFor={`select-${entry.id}`} className="text-sm font-serif text-muted-foreground cursor-pointer hover:text-primary">Select</Label>
+                      <Label htmlFor={`select-${entry.id}`} className="text-sm font-serif text-muted-foreground cursor-pointer hover:text-primary transition-colors">Select</Label>
                       <Checkbox
                         id={`select-${entry.id}`}
                         checked={selectedEntryIds.includes(entry.id)}
                         onCheckedChange={() => handleToggleSelection(entry.id)}
-                        disabled={selectedEntryIds.length >= 2 && !selectedEntryIds.includes(entry.id)}
-                        className="border-primary/50 data-[state=checked]:bg-accent data-[state=checked]:border-accent-foreground"
+                        disabled={(selectedEntryIds.length >= 2 && !selectedEntryIds.includes(entry.id)) || isLinking || isSummarizing || isAnalyzingPolarity}
+                        className="border-primary/60 data-[state=checked]:bg-accent data-[state=checked]:border-accent-foreground rounded-sm w-5 h-5"
                       />
                     </div>
                   </div>
-                  <p className="pt-2 font-serif text-foreground/90">{entry.query}</p>
+                  <p className="pt-3 font-serif text-foreground/90 text-md">{entry.query}</p>
                 </CardHeader>
                 <CardContent className="p-4 flex-grow">
-                  <h3 className="font-semibold mb-1 text-primary font-serif flex items-center gap-2"><BookOpenCheck className="h-5 w-5 text-accent" />AstraKairos's Chronicled Insight:</h3>
-                  <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap font-serif">{entry.prediction}</p>
-                  {entry.visualizationHint && <p className="text-xs text-accent/80 mt-2 italic font-serif">Archetype Seed: {entry.visualizationHint}</p>}
+                  <h3 className="font-semibold mb-2 text-primary font-lora flex items-center gap-2 text-lg tracking-wide"><BookOpenCheck className="h-5 w-5 text-accent" />AstraKairos's Chronicled Insight:</h3>
+                  <p className="text-muted-foreground/90 leading-relaxed whitespace-pre-wrap font-serif text-md">{entry.prediction}</p>
+                  {entry.visualizationHint && <p className="text-xs text-accent/80 mt-3 italic font-serif">Archetype Seed: {entry.visualizationHint}</p>}
                   {entry.auraPaletteSeed && <p className="text-xs text-accent/80 mt-1 italic font-serif">Aura Palette Seed: {entry.auraPaletteSeed}</p>}
-                  {entry.dailySymbolicFocusUsed && <p className="text-xs text-primary/70 mt-1 italic font-serif">Daily Focus active: {entry.dailySymbolicFocusUsed}</p>}
-                  {entry.symbolicSeedUsed && <p className="text-xs text-primary/70 mt-1 italic font-serif">Symbolic Seed Used: {entry.symbolicSeedUsed}</p>}
-                  {entry.chronoSymbolicMomentDate && <p className="text-xs text-muted-foreground/80 mt-1 italic font-serif">Chrono Date: {format(new Date(entry.chronoSymbolicMomentDate), 'MMM d, yyyy, h:mm a')}</p>}
-                  {entry.chronoSymbolicMomentFeeling && <p className="text-xs text-muted-foreground/80 mt-1 italic font-serif">Chrono Feeling: {entry.chronoSymbolicMomentFeeling}</p>}
+                  <Separator className="my-3 bg-border/30"/>
+                  {entry.dailySymbolicFocusUsed && <p className="text-xs text-primary/70 italic font-serif">Daily Focus active: {entry.dailySymbolicFocusUsed}</p>}
+                  {entry.symbolicSeedUsed && <p className="text-xs text-primary/70 italic font-serif">Symbolic Seed Used: {entry.symbolicSeedUsed}</p>}
+                  {entry.chronoSymbolicMomentDate && <p className="text-xs text-muted-foreground/80 italic font-serif">Chrono Date: {format(new Date(entry.chronoSymbolicMomentDate), 'MMM d, yyyy, h:mm a')}</p>}
+                  {entry.chronoSymbolicMomentFeeling && <p className="text-xs text-muted-foreground/80 italic font-serif">Chrono Feeling: {entry.chronoSymbolicMomentFeeling}</p>}
                 </CardContent>
-                <CardFooter className="p-3 border-t border-primary/20 bg-secondary/20">
+                <CardFooter className="p-3 border-t-2 border-primary/30 bg-secondary/30">
                    <Button 
                     onClick={() => handleAnalyzePolarity(entry)} 
                     variant="outline" 
                     size="sm"
-                    className="w-full border-accent/70 text-accent hover:bg-accent/20 font-serif text-sm"
+                    className="w-full border-accent/70 text-accent hover:bg-accent/20 font-lora text-sm py-2.5 rounded-md"
                     disabled={isAnalyzingPolarity || isLinking || isSummarizing}
                   >
-                    {isAnalyzingPolarity && polarityAnalysisResult?.entryQuery === entry.query ? <LoadingSpinner size="sm" className="mr-2"/> : <Symmetry className="mr-2 h-4 w-4"/>}
+                    {(isAnalyzingPolarity && polarityAnalysisResult?.entryQuery === entry.query) ? <LoadingSpinner size="sm" className="mr-2"/> : <Symmetry className="mr-2 h-4 w-4"/>}
                     Analyze Symbolic Polarity
                   </Button>
                 </CardFooter>
@@ -293,22 +296,22 @@ export default function JournalPageClient() {
       </div>
       {showPolarityDialog && polarityAnalysisResult && (
         <AlertDialog open={showPolarityDialog} onOpenChange={setShowPolarityDialog}>
-          <AlertDialogContent className="max-w-lg">
-            <AlertDialogHeader>
-              <AlertDialogTitle className="font-serif text-primary flex items-center gap-2">
-                <Symmetry className="text-accent h-6 w-6"/>Symbolic Polarity Analysis
+          <AlertDialogContent className="dialog-content-ornate max-w-lg">
+            <AlertDialogHeader className="dialog-header-ornate">
+              <AlertDialogTitle className="dialog-title-ornate flex items-center gap-2">
+                <Symmetry className="text-accent h-7 w-7 animate-pulse-glow"/>Symbolic Polarity Analysis
               </AlertDialogTitle>
-              <AlertDialogDescription className="font-serif text-left text-md text-muted-foreground">
+              <AlertDialogDescription className="dialog-description-ornate text-left text-md">
                 For your query: <strong className="text-primary/90">"{polarityAnalysisResult.entryQuery}"</strong>
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <div className="my-4 space-y-3 text-sm text-foreground/90 font-serif max-h-[50vh] overflow-y-auto px-1">
+            <div className="my-4 space-y-3 text-md text-foreground/90 font-serif max-h-[60vh] overflow-y-auto p-1 custom-scrollbar">
                 <p><strong className="text-primary">Identified Core Theme:</strong> {polarityAnalysisResult.originalTheme}</p>
-                <Separator className="my-2 bg-border/40"/>
-                <p><strong className="text-accent">Polarity Reflection:</strong> {polarityAnalysisResult.polarityAnalysis}</p>
+                <Separator className="my-3 bg-border/50"/>
+                <p><strong className="text-accent">Polarity Reflection from the Oracle:</strong> {polarityAnalysisResult.polarityAnalysis}</p>
             </div>
-            <AlertDialogFooter>
-              <AlertDialogAction onClick={() => setShowPolarityDialog(false)} className="font-serif bg-accent hover:bg-accent/90 text-accent-foreground">Close</AlertDialogAction>
+            <AlertDialogFooter className="dialog-footer-ornate">
+              <AlertDialogAction onClick={() => setShowPolarityDialog(false)} className="font-lora text-md bg-accent hover:bg-accent/90 text-accent-foreground">Close Portal</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
@@ -316,5 +319,3 @@ export default function JournalPageClient() {
     </div>
   );
 }
-
-    
