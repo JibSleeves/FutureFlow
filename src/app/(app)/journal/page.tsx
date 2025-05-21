@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { ScrollText, Lightbulb, Link2, Trash2, BookOpenCheck, Sparkles, BookMarked, Milestone, Symmetry, FileText, Wand } from "lucide-react";
+import { ScrollText, Lightbulb, Link2, Trash2, BookOpenCheck, Sparkles, BookMarked, Milestone, FileText, Wand, YinYang } from "lucide-react";
 import { LoadingSpinner } from '@/components/common/loading-spinner';
 import { format } from 'date-fns';
 import { handleSummarizePredictionsAction, handleLinkKarmicEchoesAction, handleAnalyzeSymbolicPolarityAction } from './actions';
@@ -285,7 +285,7 @@ export default function JournalPageClient() {
                     className="w-full border-accent/70 text-accent hover:bg-accent/20 font-lora text-sm py-2.5 rounded-md"
                     disabled={isAnalyzingPolarity || isLinking || isSummarizing}
                   >
-                    {(isAnalyzingPolarity && polarityAnalysisResult?.entryQuery === entry.query) ? <LoadingSpinner size="sm" className="mr-2"/> : <Symmetry className="mr-2 h-4 w-4"/>}
+                    {(isAnalyzingPolarity && polarityAnalysisResult?.entryQuery === entry.query) ? <LoadingSpinner size="sm" className="mr-2"/> : <YinYang className="mr-2 h-4 w-4"/>}
                     Analyze Symbolic Polarity
                   </Button>
                 </CardFooter>
@@ -299,7 +299,7 @@ export default function JournalPageClient() {
           <AlertDialogContent className="dialog-content-ornate max-w-lg">
             <AlertDialogHeader className="dialog-header-ornate">
               <AlertDialogTitle className="dialog-title-ornate flex items-center gap-2">
-                <Symmetry className="text-accent h-7 w-7 animate-pulse-glow"/>Symbolic Polarity Analysis
+                <YinYang className="text-accent h-7 w-7 animate-pulse-glow"/>Symbolic Polarity Analysis
               </AlertDialogTitle>
               <AlertDialogDescription className="dialog-description-ornate text-left text-md">
                 For your query: <strong className="text-primary/90">"{polarityAnalysisResult.entryQuery}"</strong>
@@ -319,3 +319,4 @@ export default function JournalPageClient() {
     </div>
   );
 }
+

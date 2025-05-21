@@ -145,6 +145,18 @@
   ::-webkit-scrollbar-corner {
     background: transparent;
   }
+
+  /* Custom scrollbar for specific elements if needed */
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: hsl(var(--card) / 0.8); /* Slightly lighter than main scrollbar for internal components */
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.7);
+    border: 2px solid hsl(var(--card) / 0.8);
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary));
+  }
 }
 
 @keyframes pulse-glow {
@@ -181,4 +193,12 @@
   & .dialog-footer-ornate {
     @apply border-t-2 border-primary/30 pt-3;
   }
+}
+
+/* Animation for Psi-Qux title */
+.animate-psi-glow {
+  animation: psi-glow 3s infinite ease-in-out;
+}
+.animate-psi-glow-hover {
+  animation: psi-glow 2s infinite ease-in-out; /* Can be the same or slightly different for hover */
 }

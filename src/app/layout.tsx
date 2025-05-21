@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { JournalProvider } from '@/contexts/journal-context';
 
 export const metadata: Metadata = {
-  title: 'FutureFlow',
+  title: 'Psi-Qux',
   description: 'AI-powered divination and future insights.',
 };
 
